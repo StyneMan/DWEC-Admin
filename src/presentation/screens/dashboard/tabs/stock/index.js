@@ -1,0 +1,110 @@
+import React from "react";
+import { makeStyles } from "@mui/styles";
+import Button from "@mui/material/Button";
+import { Add } from "@mui/icons-material";
+import { useSelector } from "react-redux";
+import { Typography } from "@mui/material";
+import CustomDialog from "../../../../components/dashboard/dialogs/custom-dialog";
+import CreateAdminForm from "../../../../forms/admin/create_admin_form";
+import { useHistory } from "react-router-dom";
+import StocksTable from "../../../../components/table/stock";
+// import AdminsTable from "../../../../components/table/admin";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    height: 300,
+    width: "100%",
+  },
+  row: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  rowHeader: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 10,
+  },
+  main: {
+    display: "flex",
+    flex: 1,
+    flexDirection: "column",
+    margin: "auto",
+    minHeight: 275,
+    minWidth: 320,
+    alignItems: "center",
+  },
+  cardMedia: {
+    height: 156,
+    width: "100%",
+  },
+  subRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "end",
+    alignItems: "center",
+  },
+  lhsRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "start",
+    alignItems: "center",
+  },
+  avatar: {
+    height: 36,
+    width: 36,
+  },
+  column: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "start",
+    alignItems: "start",
+    padding: 4,
+  },
+}));
+
+const Stock = () => {
+  const classes = useStyles();
+  const history = useHistory();
+  //   const [open, setOpen] = React.useState(false);
+  const { userData } = useSelector((state) => state.user);
+
+  return (
+    <div>
+      {/* <CustomDialog
+        title="CREATE NEW USER"
+        bodyComponent={<CreateAdminForm setOpen={setOpen} />}
+        open={open}
+        handleClose={() => setOpen(false)}
+      /> */}
+      <div className={classes.row}>
+        <div className={classes.lhsRow}>
+          <Typography
+            textTransform={"uppercase"}
+            variant="h4"
+            fontWeight="700"
+            color="primary.main"
+          >
+            STOCK/INVENTORY
+          </Typography>
+        </div>
+        <Button
+          disabled={userData?.userType !== "Admin"}
+          startIcon={<Add />}
+          color="primary"
+          variant="contained"
+          onClick={() => history.push("/dashboard/dwec/stocks/create")}
+        >
+          Add Stock
+        </Button>
+      </div>
+      <br />
+      <StocksTable />
+    </div>
+  );
+};
+
+export default Stock;
