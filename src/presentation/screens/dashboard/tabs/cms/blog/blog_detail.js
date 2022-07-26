@@ -185,13 +185,6 @@ const BlogDetail = (props) => {
         <div className={classes.lhsRow}>
           <IconButton
             aria-label="delete"
-            color="primary"
-            onClick={() => setOpen(true)}
-          >
-            <Edit />
-          </IconButton>
-          <IconButton
-            aria-label="delete"
             color="error"
             onClick={() => setOpenDelete(true)}
           >

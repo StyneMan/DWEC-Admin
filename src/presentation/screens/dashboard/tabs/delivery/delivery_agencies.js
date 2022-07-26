@@ -63,10 +63,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Stock = () => {
+const DeliveryAgencies = () => {
   const classes = useStyles();
   const history = useHistory();
-  //   const [open, setOpen] = React.useState(false);
   const { userData } = useSelector((state) => state.user);
 
   return (
@@ -79,7 +78,7 @@ const Stock = () => {
             fontWeight="700"
             color="primary.main"
           >
-            STOCK/INVENTORY
+            DELIVERY AGENCIES
           </Typography>
         </div>
         <Button
@@ -87,9 +86,11 @@ const Stock = () => {
           startIcon={<Add />}
           color="primary"
           variant="contained"
-          onClick={() => history.push("/dashboard/dwec/stocks/create")}
+          onClick={() =>
+            history.push("/dashboard/dwec/deliveries-agencies/create")
+          }
         >
-          Add Stock
+          Add Agency
         </Button>
       </div>
       <br />
@@ -98,4 +99,4 @@ const Stock = () => {
   );
 };
 
-export default Stock;
+export default DeliveryAgencies;

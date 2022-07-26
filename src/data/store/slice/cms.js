@@ -9,6 +9,7 @@ export const cmsSlice = createSlice({
     bankData: null,
     faqData: null,
     adsData: null,
+    aboutData: null,
   },
   reducers: {
     setPrivacyData: (state, action) => {
@@ -26,6 +27,9 @@ export const cmsSlice = createSlice({
     setAdsData: (state, action) => {
       state.adsData = action.payload;
     },
+    setAboutData: (state, action) => {
+      state.aboutData = action.payload;
+    },
     setBankData: (state, action) => {
       state.bankData = action.payload;
     },
@@ -37,6 +41,7 @@ export const {
   setFAQData,
   setBlogData,
   setBankData,
+  setAboutData,
   setContactData,
   setPrivacyData,
 } = cmsSlice.actions;

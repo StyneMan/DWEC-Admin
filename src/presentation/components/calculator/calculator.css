@@ -1,9 +1,9 @@
-button{
+.btn-calc{
     width: 3em;
     height: 3em;
     font-size: 1.5em;
     border: none;
-    border-radius: 6em;
+    border-radius: 6em; 
     margin: 0.2em;
 }
 

@@ -31,11 +31,11 @@ export default function OrdersTable() {
       width: 105,
     },
     {
-      field: "date",
+      field: "createdAt",
       headerName: "DATE",
-      width: 80,
+      width: 90,
       valueGetter: (params) =>
-        `${new Date(params.row?.date?.seconds * 1000).toLocaleDateString(
+        `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
           "en-US"
         )}`,
     },
@@ -47,7 +47,7 @@ export default function OrdersTable() {
     {
       field: "category",
       headerName: "CATEGORY",
-      width: 130,
+      width: 110,
     },
     {
       field: "price",
@@ -63,6 +63,11 @@ export default function OrdersTable() {
       field: "cost",
       headerName: "COST",
       width: 86,
+    },
+    {
+      field: "deliveryType",
+      headerName: "DELIVERY",
+      width: 90,
     },
     {
       field: "paymentMethod",
@@ -88,7 +93,7 @@ export default function OrdersTable() {
   const { ordersData } = useSelector((state) => state.orders);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={ordersData}
         columns={columns}

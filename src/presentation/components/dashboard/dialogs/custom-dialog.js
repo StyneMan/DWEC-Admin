@@ -17,7 +17,6 @@ function getModalStyle() {
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    // minWidth: '20%',
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
@@ -29,10 +28,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CustomDialog = (props) => {
-  const { title, open, handleClose, bodyComponent } = props;
   const classes = useStyles();
-  // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
+  const { title, open, handleClose, bodyComponent } = props;
 
   const body = (
     <div style={modalStyle} className={classes.paper}>

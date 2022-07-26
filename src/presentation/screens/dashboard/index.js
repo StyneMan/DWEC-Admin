@@ -41,7 +41,9 @@ import CreateAdminForm from "../../forms/admin/create_admin_form";
 import { setProductsData } from "../../../data/store/slice/products";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  setAboutData,
   setAdsData,
+  setBankData,
   setBlogData,
   setContactData,
   setFAQData,
@@ -70,11 +72,16 @@ import FAQs from "./tabs/cms/faqs";
 import Sales from "./tabs/sales";
 import { setSalesData } from "../../../data/store/slice/sales";
 import { Calculate } from "@mui/icons-material";
-import Calculator from "../../components/calculator";
-import { Clock } from "../../components/clock";
+// import Calculator from "../../components/calculator";
+// import { Clock } from "../../components/clock";
 import SalesDashboard from "./sales_dashboard";
 import PaymentProofs from "./tabs/proofs";
 import { setProofsData } from "../../../data/store/slice/proofs";
+import UpdateAboutForm from "../../forms/contact-us/update_about";
+import DeliveryAgencies from "./tabs/delivery/delivery_agencies";
+import AddDeliveryAgency from "../../forms/delivery/add_agency";
+import CalculatorWrapper from "../../components/wrapper/calculator_wrapper";
+import ClockWrapper from "../../components/wrapper/clock_wrapper";
 
 const drawerWidth = 270;
 const useStyles = makeStyles((theme) => ({
@@ -201,6 +208,14 @@ function Dashboard(props) {
         dispatch(setContactData(doc.data()));
       });
 
+      onSnapshot(doc(db, "cms", "about"), (doc) => {
+        dispatch(setAboutData(doc.data()));
+      });
+
+      onSnapshot(doc(db, "cms", "bank"), (doc) => {
+        dispatch(setBankData(doc.data()));
+      });
+
       const faqQuery = query(collection(db, "faqs"));
       onSnapshot(faqQuery, (querySnapshot) => {
         const faqs = [];
@@ -311,7 +326,7 @@ function Dashboard(props) {
     } catch (err) {
       // console.log(err);
     }
-  }, []);
+  }, [dispatch]);
 
   const menuId = "primary-search-account-menu";
   const renderMenu = (
@@ -492,17 +507,28 @@ function Dashboard(props) {
                   <Route path="/dashboard/dwec/orders" exact={true}>
                     <Orders />
                   </Route>
-
                   <Route path="/dashboard/dwec/payment-proofs" exact={true}>
                     <PaymentProofs />
                   </Route>
-
                   <Route path="/dashboard/dwec/sales" exact={true}>
                     <Sales />
                   </Route>
                   <Route path="/dashboard/dwec/deliveries" exact={true}>
                     <Delivery />
                   </Route>
+                  <Route
+                    path="/dashboard/dwec/deliveries-agencies"
+                    exact={true}
+                  >
+                    <DeliveryAgencies />
+                  </Route>
+                  <Route
+                    path="/dashboard/dwec/deliveries-agencies/create"
+                    exact={true}
+                  >
+                    <AddDeliveryAgency />
+                  </Route>
+
                   <Route path="/dashboard/dwec/category" exact={true}>
                     <Category />
                   </Route>
@@ -534,6 +560,12 @@ function Dashboard(props) {
                     <ContactUsForm />
                   </Route>
                   <Route
+                    path="/dashboard/dwec/cms/contact-us/about/update"
+                    exact={true}
+                  >
+                    <UpdateAboutForm />
+                  </Route>
+                  <Route
                     path="/dashboard/dwec/cms/privacy-policy/update"
                     exact={true}
                   >
@@ -560,7 +592,6 @@ function Dashboard(props) {
                   <Route path="/dashboard/dwec/cms/blog/update" exact={true}>
                     <UpdateBlog />
                   </Route>
-
                   <Route path="/dashboard/dwec/cms/blog:id" exact={true}>
                     <BlogDetail />
                   </Route>
@@ -604,7 +635,7 @@ function Dashboard(props) {
                     {userData?.userType}
                   </Typography>
                   <Box>
-                    <Clock />
+                    <ClockWrapper />
                   </Box>
                   <Box
                     display="flex"
@@ -624,7 +655,9 @@ function Dashboard(props) {
                       anchorEl={anchorPopperEl}
                     >
                       <Box sx={{ p: 0 }}>
-                        <Calculator setAnchorPopperEl={setAnchorPopperEl} />
+                        <CalculatorWrapper
+                          setAnchorPopperEl={setAnchorPopperEl}
+                        />
                       </Box>
                     </Popper>
 

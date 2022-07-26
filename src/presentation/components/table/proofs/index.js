@@ -57,7 +57,6 @@ export default function ProofsTable() {
       headerName: "AMOUNT",
       width: 125,
     },
-
     {
       field: "status",
       headerName: "STATUS",

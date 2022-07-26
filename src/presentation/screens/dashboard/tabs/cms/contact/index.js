@@ -3,12 +3,14 @@ import { makeStyles } from "@mui/styles";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { Edit, Email, LocationOn, Phone, Web } from "@mui/icons-material";
-import image from "../../../../../../assets/images/handshake.jpeg";
+// import image from "../../../../../../assets/images/handshake.jpeg";
 import Grid from "@mui/material/Grid";
 import { useHistory } from "react-router-dom";
 import CustomDialog from "../../../../../components/dashboard/dialogs/custom-dialog";
 import UpdateContactUsForm from "../../../../../forms/contact-us";
 import { useSelector } from "react-redux";
+import { Box } from "@mui/system";
+import ReactQuill from "react-quill";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,6 +45,11 @@ const ContactUs = () => {
   const [open, setOpen] = React.useState(false);
 
   const { contactData } = useSelector((state) => state.cms);
+  const { aboutData } = useSelector((state) => state.cms);
+
+  let modules = {
+    toolbar: null,
+  };
 
   return (
     <div>
@@ -73,6 +80,7 @@ const ContactUs = () => {
               pathname: "/dashboard/dwec/cms/contact-us/update",
               state: {
                 phone: contactData?.phone,
+                phone2: contactData?.phone2,
                 email: contactData?.email,
                 website: contactData?.website,
                 address: contactData?.address,
@@ -91,9 +99,19 @@ const ContactUs = () => {
               <br />
               <div className={classes.rowStart}>
                 <Phone fontSize="medium" color="primary" />
-                <Typography sx={{ ml: 2 }} gutterBottom>
-                  {contactData?.phone}
-                </Typography>
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="start"
+                  alignItems="center"
+                >
+                  <Typography sx={{ ml: 2 }} gutterBottom>
+                    {contactData?.phone}
+                  </Typography>
+                  <Typography sx={{ ml: 2 }} gutterBottom>
+                    {contactData?.phone2}
+                  </Typography>
+                </Box>
               </div>
 
               <div className={classes.rowStart}>
@@ -120,12 +138,48 @@ const ContactUs = () => {
           )}
         </Grid>
 
-        <Grid item xs={12} sm={6} md={7}>
-          <div>
-            <img src={image} alt="featured-img" width="100%" />
-          </div>
-        </Grid>
+        <Grid item xs={12} sm={6} md={7}></Grid>
       </Grid>
+      {aboutData && (
+        <Box
+          paddingY={8}
+          display="flex"
+          flexDirection="column"
+          justifyContent="start"
+          alignItems="start"
+        >
+          <Box
+            width="100%"
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography color="primary.main" variant="h4" gutterBottom={true}>
+              {aboutData?.title}
+            </Typography>
+            <Button
+              startIcon={<Edit />}
+              variant="contained"
+              onClick={() =>
+                history.push({
+                  pathname: "/dashboard/dwec/cms/contact-us/about/update",
+                  state: {
+                    body: aboutData?.body,
+                  },
+                })
+              }
+            >
+              Edit
+            </Button>
+          </Box>
+          <ReactQuill
+            value={aboutData?.body}
+            readOnly={true}
+            modules={modules}
+          />
+        </Box>
+      )}
     </div>
   );
 };

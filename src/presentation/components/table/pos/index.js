@@ -2,33 +2,126 @@ import React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 
 import CustomNoRowsOverlay from "../../misc/placeholder/custom_no_data";
-import { useSelector } from "react-redux";
-import { makeStyles } from "@mui/styles";
-import {
-  IconButton,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { IconButton, Typography } from "@mui/material";
 import DeleteOutlineOutlined from "@mui/icons-material/DeleteOutlineOutlined";
-import { AccountCircle } from "@mui/icons-material";
+import { useSelector, useDispatch } from "react-redux";
+import { useSnackbar } from "notistack";
+import {
+  db,
+  arrayRemove,
+  doc,
+  updateDoc,
+  arrayUnion,
+} from "../../../../data/firebase";
+import { Box } from "@mui/system";
+import { ArrowDropDown, ArrowDropUp } from "@mui/icons-material";
+import {
+  setInitValue,
+  setTriggerPOS,
+} from "../../../../data/store/slice/sales";
 
-const useStyles = makeStyles(() => ({
-  noBorder: {
-    border: "none",
-  },
-}));
+// const useStyles = makeStyles(() => ({
+//   noBorder: {
+//     border: "none",
+//   },
+// }));
 
 export default function POSTable() {
-  const classes = useStyles();
+  // const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
 
-  const handleQuantityChange = (e) => {};
+  const removeItem = async (item) => {
+    try {
+      const usersRef = doc(db, "users", `${userData?.id}`);
+      await updateDoc(usersRef, {
+        sales: arrayRemove(item),
+      });
+    } catch (e) {}
+  };
+
+  const increaseQuantity = async (item) => {
+    removeItem(item);
+    const usersRef = doc(db, "users", `${userData?.id}`);
+    let unitPrice = item?.price;
+    let prevQuantity = item?.quantity;
+    let increment = prevQuantity + 1;
+    const all = {
+      ...item,
+      quantity: increment,
+      cost: unitPrice * increment,
+    };
+
+    try {
+      await updateDoc(usersRef, {
+        sales: arrayUnion(all),
+      });
+      dispatch(setInitValue(0));
+      dispatch(setTriggerPOS("increase"));
+      setTimeout(() => {
+        dispatch(setTriggerPOS(null));
+      }, 3000);
+    } catch (err) {}
+  };
+
+  const decreaseQuantity = async (item) => {
+    const usersRef = doc(db, "users", `${userData?.id}`);
+    if (item?.quantity === 1) return;
+    if (item?.quantity >= 1) {
+      removeItem(item);
+
+      // console.log("ASW:::", item);
+      let unitPrice = item?.price;
+      let prevQuantity = item?.quantity;
+      let increment = prevQuantity - 1;
+      const all = {
+        ...item,
+        quantity: increment,
+        cost: unitPrice * increment,
+      };
+
+      try {
+        await updateDoc(usersRef, {
+          sales: arrayUnion(all),
+        });
+        dispatch(setInitValue(0));
+        dispatch(setTriggerPOS("decrease"));
+        setTimeout(() => {
+          dispatch(setTriggerPOS(null));
+        }, 3000);
+      } catch (err) {}
+    }
+  };
+
+  const handleDelete = async (item) => {
+    try {
+      const usersRef = doc(db, "users", `${userData?.id}`);
+      await updateDoc(usersRef, {
+        sales: arrayRemove(item),
+      });
+      dispatch(setInitValue(0));
+      dispatch(setTriggerPOS("product"));
+      setTimeout(() => {
+        dispatch(setTriggerPOS(null));
+      }, 3000);
+      enqueueSnackbar(`${"Item deleted successfully."}`, {
+        variant: "success",
+      });
+    } catch (error) {
+      enqueueSnackbar(
+        `${error?.message || "Check your internet connection!"}`,
+        {
+          variant: "error",
+        }
+      );
+    }
+  };
 
   const columns = [
     {
       field: "name",
       headerName: "NAME",
-      width: 120,
+      width: 110,
     },
     {
       field: "price",
@@ -38,28 +131,44 @@ export default function POSTable() {
     {
       field: "quantity",
       headerName: "QUANTITY",
-      width: 70,
+      width: 100,
       renderCell: (params) => {
         return (
-          <TextField
-            type="number"
-            classes={{ notchedOutline: classes.input }}
-            value={params?.row?.quantity}
-            onChange={handleQuantityChange}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Typography>{params?.row?.quantity}</Typography>
-                </InputAdornment>
-              ),
-              classes: { notchedOutline: classes.noBorder },
-            }}
-          />
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography>{params?.row?.quantity}</Typography>
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="start"
+              alignItems="center"
+            >
+              <IconButton
+                onClick={() => increaseQuantity(params?.row)}
+                size="small"
+                sx={{ width: 28, height: 28 }}
+              >
+                <ArrowDropUp />
+              </IconButton>
+
+              <IconButton
+                onClick={() => decreaseQuantity(params?.row)}
+                size="small"
+                sx={{ width: 28, height: 28 }}
+              >
+                <ArrowDropDown />
+              </IconButton>
+            </Box>
+          </Box>
         );
       },
     },
     {
-      field: "subtotal",
+      field: "cost",
       headerName: "SUBTOTAL",
       width: 100,
     },
@@ -69,7 +178,7 @@ export default function POSTable() {
       width: 100,
       renderCell: (params) => {
         return (
-          <IconButton>
+          <IconButton onClick={() => handleDelete(params?.row)}>
             <DeleteOutlineOutlined />
           </IconButton>
         );
@@ -80,13 +189,12 @@ export default function POSTable() {
   const { userData } = useSelector((state) => state.user);
 
   return (
-    <div style={{ height: 420, width: "100%" }}>
+    <div style={{ height: 465, width: "100%" }}>
       <DataGrid
         rows={userData?.sales}
         columns={columns}
         pagination={false}
         components={{
-          //   Toolbar: CustomToolbar,
           NoRowsOverlay: CustomNoRowsOverlay,
         }}
       />

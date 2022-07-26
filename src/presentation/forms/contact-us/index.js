@@ -25,10 +25,11 @@ const ContactUsForm = () => {
   const classes = useStyles();
   let location = useLocation();
   let history = useHistory();
-  let { address, phone, email, website } = location.state;
+  let { address, phone, phone2, email, website } = location.state;
   const [formValues, setFormValues] = React.useState({
     address: " ",
     phone: " ",
+    phone2: " ",
     email: " ",
     website: " ",
     facebook: " ",
@@ -58,6 +59,7 @@ const ContactUsForm = () => {
       await updateDoc(mRef, {
         address: formValues.address === " " ? address : formValues.address,
         phone: formValues.phone === " " ? phone : formValues.phone,
+        phone2: formValues.phone2 === " " ? phone2 : formValues.phone2,
         email: formValues.email === " " ? email : formValues.email,
         website: formValues.website === " " ? website : formValues.website,
       });
@@ -131,6 +133,24 @@ const ContactUsForm = () => {
               : !formValues.phone
               ? ""
               : formValues.phone
+          }
+          onChange={handleChange}
+          variant="outlined"
+          validators={["required"]}
+          errorMessages={["Phone number is required"]}
+        />
+
+        <TextValidator
+          className={classes.mb}
+          fullWidth
+          name="phone2"
+          label="Phone Line 2"
+          value={
+            formValues.phone2 === " "
+              ? phone2
+              : !formValues.phone2
+              ? ""
+              : formValues.phone2
           }
           onChange={handleChange}
           variant="outlined"

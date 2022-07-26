@@ -11,6 +11,7 @@ import {
 import CustomNoRowsOverlay from "../../misc/placeholder/custom_no_data";
 import ActionButton from "./action_button";
 import { useSelector } from "react-redux";
+import { Typography } from "@mui/material";
 
 function CustomToolbar() {
   return (
@@ -31,11 +32,11 @@ export default function DeliveriesTable() {
       width: 100,
     },
     {
-      field: "date",
+      field: "createdAt",
       headerName: "ORDER DATE",
       width: 120,
       valueGetter: (params) =>
-        `${new Date(params.row?.date?.seconds * 1000).toLocaleDateString(
+        `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
           "en-US"
         )}`,
     },
@@ -43,11 +44,17 @@ export default function DeliveriesTable() {
       field: "address",
       headerName: "DELIVERY ADDRESS",
       width: 200,
+      renderCell: (params) => {
+        return <Typography>{params?.deliveryInfo?.address}</Typography>;
+      },
     },
     {
       field: "agentName",
       headerName: "DELIVERY AGENT",
       width: 200,
+      renderCell: (params) => {
+        return <Typography>{params?.deliveryInfo?.agentName}</Typography>;
+      },
     },
     {
       field: "agentPhone",
@@ -69,12 +76,23 @@ export default function DeliveriesTable() {
     },
   ];
 
-  const { deliveryData } = useSelector((state) => state.delivery);
+  const [mData, setMData] = React.useState();
+  // const { deliverordersyData } = useSelector((state) => state.delivery);
+  const { ordersData } = useSelector((state) => state.orders);
+
+  React.useEffect(() => {
+    if (ordersData) {
+      let val = ordersData?.filter(
+        (item) => item?.deliveryType === "Door Delivery"
+      );
+      setMData(val);
+    }
+  }, [ordersData]);
 
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={deliveryData}
+        rows={mData}
         columns={columns}
         components={{
           Toolbar: CustomToolbar,

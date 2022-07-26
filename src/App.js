@@ -20,6 +20,7 @@ import {
   setContactData,
   setPrivacyData,
   setBankData,
+  setAboutData,
 } from "./data/store/slice/cms";
 import { setCategoryData } from "./data/store/slice/category";
 import { setDeliveryData } from "./data/store/slice/deliveries";
@@ -42,7 +43,7 @@ function App() {
       if (user) {
         onSnapshot(doc(db, "users", "" + user.uid), (doc) => {
           dispatch(setUserData(doc.data()));
-          console.log("USERDATA::", doc.data());
+          // console.log("USERDATA::", doc.data());
         });
       }
 
@@ -56,6 +57,10 @@ function App() {
 
       onSnapshot(doc(db, "cms", "bank"), (doc) => {
         dispatch(setBankData(doc.data()));
+      });
+
+      onSnapshot(doc(db, "cms", "about"), (doc) => {
+        dispatch(setAboutData(doc.data()));
       });
 
       const faqQuery = query(collection(db, "faqs"));

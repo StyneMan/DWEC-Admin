@@ -10,7 +10,7 @@ import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import Fade from "@mui/material/Fade";
 // import DataPreview from "../miscellaneous/DataPreview";
 import CustomDialog from "../../dashboard/dialogs/custom-dialog";
-import ProductPreview from "./preview";
+import ProofsPreview from "./preview";
 
 const ActionButton = ({ selected }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -55,10 +55,7 @@ const ActionButton = ({ selected }) => {
         <CustomDialog
           title="Preview Data"
           bodyComponent={
-            <ProductPreview
-              item={selected?.row}
-              setOpen={setOpenPreviewModal}
-            />
+            <ProofsPreview item={selected?.row} setOpen={setOpenPreviewModal} />
           }
           open={openPreviewModal}
           handleClose={handleCloseMoreAction}

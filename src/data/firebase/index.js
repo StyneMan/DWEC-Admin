@@ -1,5 +1,3 @@
-// Import the functions you need from the SDKs you need
-// import firebase from "firebase";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import {
@@ -22,8 +20,11 @@ import {
   updateDoc,
   deleteDoc,
   arrayUnion,
+  arrayRemove,
+  Timestamp,
+  serverTimestamp,
 } from "firebase/firestore";
-import { FieldValue, arrayUnion as arrUnion } from "firebase/firestore/lite";
+// import { FieldValue, arrayUnion } from "firebase/firestore/lite";
 import {
   getStorage,
   ref,
@@ -47,7 +48,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // firebase.initializeApp(firebaseConfig);
 
-// var database = firebase.firestore();
+// const dBase = firebase.firestore();
+// const authe = firebase.auth();
 
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
@@ -69,13 +71,15 @@ export {
   storage,
   query,
   where,
-  arrUnion,
+  // arrUnion,
+  arrayRemove,
   deleteDoc,
   updateDoc,
   onSnapshot,
   uploadBytes,
   deleteObject,
-  FieldValue,
+  Timestamp,
+  serverTimestamp,
   arrayUnion,
   updatePassword,
   setPersistence,

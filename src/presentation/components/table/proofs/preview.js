@@ -15,7 +15,7 @@ const ProofsPreview = (props) => {
           alignItems="center"
           pb={3}
         >
-          {<img src={item?.image} alt="" width="40%" />}
+          {<img src={item?.image} alt="" width="30%" />}
           <br />
           {item && <Typography>{item?.status}</Typography>}
         </Box>

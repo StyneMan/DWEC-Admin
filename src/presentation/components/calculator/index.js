@@ -83,10 +83,20 @@ export default function Calculator(props) {
               justifyContent="space-between"
               alignItems="center"
             >
-              <button onClick={clear}>C</button>
-              <button onClick={changeSign}>+/-</button>
-              <button onClick={porcentage}>%</button>
-              <button className="orange" onClick={operatorHandler} value="/">
+              <button className="btn-calc" onClick={clear}>
+                C
+              </button>
+              <button className="btn-calc" onClick={changeSign}>
+                +/-
+              </button>
+              <button className="btn-calc" onClick={porcentage}>
+                %
+              </button>
+              <button
+                className="orange btn-calc"
+                onClick={operatorHandler}
+                value="/"
+              >
                 /
               </button>
             </Box>
@@ -96,16 +106,20 @@ export default function Calculator(props) {
               justifyContent="space-between"
               alignItems="center"
             >
-              <button className="gray" onClick={inputNum} value={7}>
+              <button className="gray btn-calc" onClick={inputNum} value={7}>
                 7
               </button>
-              <button className="gray" onClick={inputNum} value={8}>
+              <button className="gray btn-calc" onClick={inputNum} value={8}>
                 8
               </button>
-              <button className="gray" onClick={inputNum} value={9}>
+              <button className="gray btn-calc" onClick={inputNum} value={9}>
                 9
               </button>
-              <button className="orange" onClick={operatorHandler} value="X">
+              <button
+                className="orange btn-calc"
+                onClick={operatorHandler}
+                value="X"
+              >
                 X
               </button>
             </Box>
@@ -116,16 +130,20 @@ export default function Calculator(props) {
               justifyContent="space-between"
               alignItems="center"
             >
-              <button className="gray" onClick={inputNum} value={4}>
+              <button className="gray btn-calc" onClick={inputNum} value={4}>
                 4
               </button>
-              <button className="gray" onClick={inputNum} value={5}>
+              <button className="gray btn-calc" onClick={inputNum} value={5}>
                 5
               </button>
-              <button className="gray" onClick={inputNum} value={6}>
+              <button className="gray btn-calc" onClick={inputNum} value={6}>
                 6
               </button>
-              <button className="orange" onClick={operatorHandler} value="-">
+              <button
+                className="orange btn-calc"
+                onClick={operatorHandler}
+                value="-"
+              >
                 -
               </button>
             </Box>
@@ -136,32 +154,46 @@ export default function Calculator(props) {
               justifyContent="space-between"
               alignItems="center"
             >
-              <button className="gray" onClick={inputNum} value={1}>
+              <button className="gray btn-calc" onClick={inputNum} value={1}>
                 1
               </button>
-              <button className="gray" onClick={inputNum} value={2}>
+              <button className="gray btn-calc" onClick={inputNum} value={2}>
                 2
               </button>
-              <button className="gray" onClick={inputNum} value={3}>
+              <button className="gray btn-calc" onClick={inputNum} value={3}>
                 3
               </button>
-              <button className="orange" onClick={operatorHandler} value="+">
+              <button
+                className="orange btn-calc"
+                onClick={operatorHandler}
+                value="+"
+              >
                 +
               </button>
             </Box>
 
-            <button className="gray" onClick={inputNum} value={0}>
-              0
-            </button>
-            <button className="gray" onClick={inputNum} value={"."}>
-              ,
-            </button>
-            <button className="gray" style={{ visibility: "hidden" }}>
-              ,
-            </button>
-            <button className="orange" onClick={calculate}>
-              =
-            </button>
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <button className="gray btn-calc" onClick={inputNum} value={0}>
+                0
+              </button>
+              <button className="gray btn-calc" onClick={inputNum} value={"."}>
+                .
+              </button>
+              <button
+                className="gray btn-calc"
+                style={{ visibility: "hidden" }}
+              >
+                ,
+              </button>
+              <button className="orange btn-calc" onClick={calculate}>
+                =
+              </button>
+            </Box>
           </Box>
         </div>
       </Container>

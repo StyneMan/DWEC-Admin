@@ -166,7 +166,7 @@ const UpdateBlog = () => {
     setIsUploading(true);
     const timeNow = new Date();
     //First upload image to firebase storage then save to firestore
-    const storageRef = ref(storage, "blog/img_" + timeNow.getTime());
+    const storageRef = ref(storage, "blog/" + timeNow.getTime());
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     uploadTask.on(

@@ -79,14 +79,14 @@ const AddProductForm = () => {
   const [formValues, setFormValues] = React.useState({
     name: "",
     category: "",
-    quantity: "",
+    quantity: 1,
   });
   const [file, setFile] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
   const [previewImage, setPreviewImage] = React.useState(placeholder);
-  const [price, setPrice] = React.useState();
+  const [price, setPrice] = React.useState(0);
   const [description, setDescription] = React.useState(null);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -140,7 +140,7 @@ const AddProductForm = () => {
           setIsUploading(false);
           setIsLoading(true);
           setDoc(doc(db, "products", `${timeNow.getTime()}`), {
-            id: timeNow.getTime(),
+            id: "" + timeNow.getTime(),
             name: formValues.name,
             image: downloadURL,
             category: formValues.category,

@@ -64,6 +64,7 @@ const Drawer2 = (props) => {
   const [openCMS, setOpenCMS] = React.useState(false);
   const [openStocks, setOpenStocks] = React.useState(false);
   const [openProducts, setOpenProducts] = React.useState(false);
+  const [openDeliveries, setOpenDeliveries] = React.useState(false);
   const [drawerItems, setDrawerItems] = React.useState([]);
 
   const { userData } = useSelector((state) => state.user);
@@ -137,8 +138,19 @@ const Drawer2 = (props) => {
           {
             text: "Deliveries",
             icon: <BikeScooter style={{ color: "white" }} />,
-            to: "/dashboard/dwec/deliveries",
-            hasChildren: false,
+            to: "",
+            hasChildren: true,
+            children: [
+              { title: "Deliveries", to: "/dashboard/dwec/deliveries" },
+              {
+                title: "Delivery Agencies",
+                to: "/dashboard/dwec/deliveries-agencies",
+              },
+              {
+                title: "Add Delivery Agency",
+                to: "/dashboard/dwec/deliveries-agencies/create",
+              },
+            ],
           },
           {
             text: "Inventory/Stocks",
@@ -350,6 +362,10 @@ const Drawer2 = (props) => {
     setOpenProducts(!openProducts);
   };
 
+  const handleDelivery = () => {
+    setOpenDeliveries(!openDeliveries);
+  };
+
   const handleStock = () => {
     setOpenStocks(!openStocks);
   };
@@ -421,7 +437,8 @@ const Drawer2 = (props) => {
               if (userData) {
                 return text === "CMS" ||
                   (text === "Products" && userData?.userType !== "POS Agent") ||
-                  text === "Inventory/Stocks" ? (
+                  text === "Inventory/Stocks" ||
+                  (text === "Deliveries" && userData?.userType === "Admin") ? (
                   <div>
                     <ListItem
                       button
@@ -436,6 +453,8 @@ const Drawer2 = (props) => {
                           ? handleCMS
                           : text === "Products"
                           ? handleProduct
+                          : text === "Deliveries"
+                          ? handleDelivery
                           : handleStock
                       }
                     >
@@ -446,6 +465,8 @@ const Drawer2 = (props) => {
                           ? openCMS
                           : text === "Products"
                           ? openProducts
+                          : text === "Deliveries"
+                          ? openDeliveries
                           : openStocks
                       ) ? (
                         <ExpandLess />
@@ -459,6 +480,8 @@ const Drawer2 = (props) => {
                           ? openCMS
                           : text === "Products"
                           ? openProducts
+                          : text === "Deliveries"
+                          ? openDeliveries
                           : openStocks
                       }
                       timeout="auto"

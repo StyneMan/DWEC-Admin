@@ -76,6 +76,7 @@ class QuillEditable extends React.Component {
   handleChange = (html) => {
     this.setState({ editorHtml: html });
     this.props.setValue(html);
+    console.log("ASDE", this.state.editorHtml);
   };
 
   static modules = {
@@ -110,9 +111,8 @@ class QuillEditable extends React.Component {
         <CustomToolbar />
         <ReactQuill
           theme="snow"
-          value={this.props.value}
+          defaultValue={this.props.value}
           onChange={this.handleChange}
-          //   placeholder={this.props.placeholder}
           modules={QuillEditable.modules}
           formats={QuillEditable.formats}
         />

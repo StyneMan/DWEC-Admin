@@ -57,6 +57,10 @@ const Theme = {
       label: {
         textTransform: "capitalize",
       },
+      root: {
+        width: "100%",
+        height: "100%",
+      },
     },
     MuiDialog: {
       paper: {

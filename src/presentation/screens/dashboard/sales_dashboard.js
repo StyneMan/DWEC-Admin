@@ -1,17 +1,18 @@
 import {
+  Button,
   Card,
   CardActionArea,
-  //   CardMedia,
   Container,
   Divider,
   Grid,
+  IconButton,
   TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import logo from "../../../assets/images/dwec_round.png";
 import CurrencyFormat from "react-currency-format";
@@ -19,45 +20,47 @@ import POSTable from "../../components/table/pos";
 import {
   db,
   doc,
-  arrUnion,
-  FieldValue,
   arrayUnion,
+  updateDoc,
+  setDoc,
+  arrayRemove,
 } from "../../../data/firebase";
-import { updateDoc } from "firebase/firestore/lite";
+import { setInitValue, setTriggerPOS } from "../../../data/store/slice/sales";
+import { DeliveryDining } from "@mui/icons-material";
+import CustomDialog from "../../components/dashboard/dialogs/custom-dialog";
+import CustomDialog2 from "../../components/dashboard/dialogs/custom-dialog";
+import ShippingForm from "../../forms/shipping/shipping_form";
+import { setSalesDeliveryData } from "../../../data/store/slice/deliveries";
 
 const ItemCard = (props) => {
   let { item, userData, list } = props;
   const { enqueueSnackbar } = useSnackbar();
+  const dispatch = useDispatch();
 
   const addProduct = () => {
-    // First check if this is already added
+    dispatch(setInitValue(0));
+    dispatch(setTriggerPOS("product"));
+
+    setTimeout(() => {
+      dispatch(setTriggerPOS(null));
+    }, 3000);
     const timeNow = new Date();
+    const usersRef = doc(db, "users", `${userData?.id}`);
     list?.forEach(async (elem) => {
-      if (elem?.id === item?.productId) {
-        enqueueSnackbar(`${"Product already added"}`, {
-          variant: "info",
-        });
-      } else {
-        const usersRef = doc(db, "users", "" + userData?.id);
-
-        // Atomically add a new region to the "regions" array field.
+      if (elem?.id !== item?.id) {
         try {
-          const resp = await updateDoc(usersRef, {
-            sales: arrayUnion([
-              {
-                id: timeNow,
-                productId: item?.id,
-                category: item?.category,
-                name: item?.name,
-                quantity: 1,
-                image: item?.image,
-                price: item?.price,
-                subtotal: item?.price * 1,
-              },
-            ]),
+          await updateDoc(usersRef, {
+            sales: arrayUnion({
+              id: timeNow.getTime(),
+              productId: item?.id,
+              category: item?.category,
+              name: item?.name,
+              quantity: 1,
+              image: item?.image,
+              price: item?.price,
+              cost: item?.price * (item?.quantity || 1),
+            }),
           });
-
-          console.log("CHEECK:: ", resp);
         } catch (error) {
           enqueueSnackbar(
             `${error?.message || "Check your internet connection!"}`,
@@ -89,9 +92,224 @@ const ItemCard = (props) => {
 };
 
 const Receipt = (props) => {
-  //   let { item } = props;
+  const dispatch = useDispatch();
+  const [openProceed, setOpenProceed] = React.useState(false);
+  const [openShipping, setOpenShipping] = React.useState(false);
+  let { totalItems, userData, triggerPOS, initValue, tax } = props;
+  const { enqueueSnackbar } = useSnackbar();
+  const { salesDeliveryData } = useSelector((state) => state.delivery);
+
+  React.useEffect(() => {
+    if (triggerPOS) {
+      userData?.sales?.forEach((elem) => {
+        dispatch(setInitValue((initValue += elem?.cost)));
+      });
+    }
+  }, [triggerPOS]);
+
+  const confirmCash = async () => {
+    //add to sales table here
+    // Timestamp.now();
+    // serverTimestamp();
+    const timeNow = new Date();
+    const usersRef = doc(db, "users", `${userData?.id}`);
+    // console.log("POPOK::>", timeNow);
+    try {
+      userData?.sales?.forEach((elem) => {
+        setDoc(doc(db, "sales", `${timeNow.getTime()}`), {
+          id: timeNow.getTime(),
+          avatar: userData?.image,
+          image: elem?.image,
+          product: elem?.productId,
+          name: elem?.name,
+          price: elem?.price,
+          quantity: elem?.quantity,
+          cost: elem?.cost,
+          deliveryType: salesDeliveryData !== null ? "Door Delivery" : "Pickup",
+          deliveryInfo: salesDeliveryData,
+          status: "Paid",
+          rep: userData?.firstname + " " + userData?.lastname,
+          soldOn: timeNow,
+        });
+      });
+      //Now delete all cart/sales array
+      await userData?.sales?.forEach(async (elem) => {
+        await updateDoc(usersRef, {
+          sales: arrayRemove(elem),
+        });
+      });
+
+      dispatch(setSalesDeliveryData(null));
+      dispatch(setTriggerPOS("Empty"));
+      dispatch(setInitValue(0));
+      //Snackbar here
+      enqueueSnackbar(`${"Purchase made successfully."}`, {
+        variant: "success",
+      });
+      //Close dialog here
+      setOpenProceed(false);
+    } catch (error) {
+      enqueueSnackbar(
+        `${error?.message || "Check your internet connection!"}`,
+        {
+          variant: "error",
+        }
+      );
+    }
+  };
+
+  const renderShipping = (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+      alignItems="center"
+    >
+      <div
+        style={{
+          width: 465,
+          overflow: "auto",
+        }}
+      >
+        <ShippingForm setOpen={setOpenShipping} />
+      </div>
+    </Box>
+  );
+
+  const renderProceed = (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="space-between"
+      alignItems="center"
+      width={800}
+    >
+      <Grid container spacing={2}>
+        <Grid item sm={6} md={8}>
+          <div
+            style={{
+              height: 400,
+              overflow: "auto",
+            }}
+          >
+            <POSTable />
+          </div>
+        </Grid>
+        <Grid item sm={6} md={4}>
+          <Box
+            pt={6}
+            display="flex"
+            flexDirection="column"
+            justifyContent="start"
+            alignItems="stretch"
+          >
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingY={1}
+            >
+              <Typography>Total Items</Typography>
+              <Typography>{totalItems}</Typography>
+            </Box>
+            <Divider />
+            <Box
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+              paddingY={1}
+            >
+              <Typography>Sub total</Typography>
+              <CurrencyFormat
+                value={initValue}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"₦"}
+              />
+            </Box>
+            <Divider />
+            <Box
+              paddingY={1}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography>Tax</Typography>
+              <CurrencyFormat
+                value={tax}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"₦"}
+              />
+            </Box>
+            <Divider />
+            <Box
+              paddingY={1}
+              display="flex"
+              flexDirection="row"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography>Total</Typography>
+              <CurrencyFormat
+                value={tax + initValue}
+                displayType={"text"}
+                thousandSeparator={true}
+                prefix={"₦"}
+              />
+            </Box>
+            <Toolbar />
+          </Box>
+        </Grid>
+      </Grid>
+      <Box
+        pt={2}
+        width="100%"
+        display="flex"
+        flexDirection="row"
+        justifyContent="end"
+        alignItems="center"
+      >
+        <Button
+          variant="contained"
+          color="secondary"
+          sx={{ textTransform: "capitalize" }}
+          onClick={() => setOpenProceed(false)}
+        >
+          Close
+        </Button>
+        <Button variant="contained" sx={{ textTransform: "capitalize", mx: 1 }}>
+          Offline Payment
+        </Button>
+        <Button
+          color="success"
+          variant="contained"
+          sx={{ textTransform: "capitalize" }}
+          onClick={confirmCash}
+        >
+          Confirm with Cash
+        </Button>
+      </Box>
+    </Box>
+  );
+
   return (
     <div>
+      <CustomDialog
+        open={openShipping}
+        handleClose={() => setOpenShipping(false)}
+        title="Shipping Information"
+        bodyComponent={renderShipping}
+      />
+      <CustomDialog2
+        open={openProceed}
+        handleClose={() => setOpenProceed(false)}
+        title="Proceed to Payment"
+        bodyComponent={renderProceed}
+      />
       <Box
         pb={1}
         display="flex"
@@ -120,7 +338,7 @@ const Receipt = (props) => {
       </Box>
       <Divider />
       <Box
-        pt={1.5}
+        pt={6}
         display="flex"
         flexDirection="column"
         justifyContent="start"
@@ -134,7 +352,7 @@ const Receipt = (props) => {
           paddingY={1}
         >
           <Typography>Total Items</Typography>
-          <Typography>{1}</Typography>
+          <Typography>{totalItems}</Typography>
         </Box>
         <Divider />
         <Box
@@ -146,12 +364,11 @@ const Receipt = (props) => {
         >
           <Typography>Sub total</Typography>
           <CurrencyFormat
-            value={2456981}
+            value={initValue}
             displayType={"text"}
             thousandSeparator={true}
             prefix={"₦"}
           />
-          {/* <Typography>{`${getSymbolFromCurrency("NGN")}123290`}</Typography> */}
         </Box>
         <Divider />
         <Box
@@ -163,29 +380,84 @@ const Receipt = (props) => {
         >
           <Typography>Tax</Typography>
           <CurrencyFormat
-            value={2456}
+            value={tax}
             displayType={"text"}
             thousandSeparator={true}
             prefix={"₦"}
           />
         </Box>
         <Divider />
+        <Box
+          paddingY={1}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <Typography>Total</Typography>
+          <CurrencyFormat
+            value={tax + initValue}
+            displayType={"text"}
+            thousandSeparator={true}
+            prefix={"₦"}
+          />
+        </Box>
+        <Toolbar />
+        <Toolbar />
+        <Box
+          paddingY={1}
+          display="flex"
+          marginTop="auto"
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
+          <IconButton onClick={() => setOpenShipping(true)}>
+            <DeliveryDining />
+          </IconButton>
+
+          <Button
+            onClick={() => setOpenProceed(true)}
+            variant="contained"
+            sx={{ textTransform: "capitalize" }}
+          >
+            Proceed
+          </Button>
+        </Box>
       </Box>
     </div>
   );
 };
 
 const SalesDashboard = () => {
-  const [keyword, setKeyword] = React.useState(null);
   const [list, setList] = React.useState([]);
+  const [keyword, setKeyword] = React.useState(null);
+  const [totalItems, setTotalItems] = React.useState(1);
   const { productsData } = useSelector((state) => state.products);
+  const { triggerPOS } = useSelector((state) => state.sales);
+  const { initValue } = useSelector((state) => state.sales);
   const { userData } = useSelector((state) => state.user);
+  const [tax, setTax] = React.useState(0);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(setTriggerPOS("product"));
+  }, []);
+
+  React.useEffect(() => {
+    if (initValue) {
+      setTax(0.075 * initValue);
+    }
+  }, [initValue]);
 
   React.useEffect(() => {
     if (productsData) {
       setList(productsData);
     }
-  }, [productsData]);
+    if (userData) {
+      setTotalItems(userData?.sales?.length);
+    }
+  }, [productsData, userData]);
 
   const handleSearch = (e) => {
     let { value } = e?.target;
@@ -216,6 +488,8 @@ const SalesDashboard = () => {
                   variant="outlined"
                   onChange={handleSearch}
                   value={keyword}
+                  fullWidth
+                  size="medium"
                   placeholder="Type product name here"
                 />
                 <Toolbar />
@@ -247,6 +521,7 @@ const SalesDashboard = () => {
               </Box>
             </Card>
           </Grid>
+
           <Grid item xs={12} sm={12} md={5}>
             <Card elevation={4}>
               <Box
@@ -260,34 +535,16 @@ const SalesDashboard = () => {
                 <div
                   style={{
                     width: "100%",
-                    height: 375,
+                    height: 500,
                     overflow: "auto",
                   }}
                 >
                   <POSTable />
-                  {/* <StickyHeadTable /> */}
-                  {/* {userData && (
-                    <List sx={{ width: "100%" }}>
-                      <SalesItem
-                        hide={true}
-                        item={{
-                          name: "Name",
-                          price: "Price",
-                          quantity: "Quantity",
-                          subtotal: "SubTotal",
-                        }}
-                      />
-                      {userData?.sales?.map((item, index) => (
-                        <ListItem key={index} disableGutters disablePadding>
-                          <SalesItem item={item} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  )} */}
                 </div>
               </Box>
             </Card>
           </Grid>
+
           <Grid item xs={12} sm={12} md={3}>
             <Card elevation={4}>
               <Box
@@ -301,11 +558,17 @@ const SalesDashboard = () => {
                 <div
                   style={{
                     width: "100%",
-                    height: 375,
+                    height: 500,
                     overflow: "auto",
                   }}
                 >
-                  <Receipt />
+                  <Receipt
+                    totalItems={totalItems}
+                    userData={userData}
+                    initValue={initValue}
+                    triggerPOS={triggerPOS}
+                    tax={tax}
+                  />
                 </div>
               </Box>
             </Card>
