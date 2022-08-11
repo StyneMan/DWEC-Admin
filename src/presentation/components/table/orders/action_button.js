@@ -17,8 +17,12 @@ import { makeStyles } from "@mui/styles";
 import CustomDialog from "../../dashboard/dialogs/custom-dialog";
 import DoneAll from "@mui/icons-material/DoneAll";
 import { db, doc, updateDoc } from "../../../../data/firebase";
-import { Cancel } from "@mui/icons-material";
-import OrdersPreview from "./preview";
+import { BikeScooter, Cancel, PrintRounded } from "@mui/icons-material";
+// import OrdersPreview from "./preview";
+import Box from "@mui/system/Box";
+import { Divider, Grid } from "@mui/material";
+import logo from "../../../../assets/images/dwec_round.png";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   awardRoot: {
@@ -35,11 +39,83 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const Receipt = (props) => {
+  let { orderNo, orderDate } = props;
+  return (
+    <Box
+      display="flex"
+      flexDirection={"column"}
+      justifyContent="start"
+      alignItems="start"
+    >
+      <Typography
+        textAlign="center"
+        variant="h3"
+        fontWeight="700"
+        color="primary.main"
+        textTransform="uppercase"
+      >
+        Order Invoice
+      </Typography>
+      <br />
+      <Divider sx={{ color: "primary.main", padding: 1 }} />
+      <Divider sx={{ color: "primary.main", padding: 1 }} />
+      <br />
+      <Grid
+        container
+        spacing={2}
+        display="flex"
+        flexDirection="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Grid item xs={12} sm={6} md={6}>
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="start"
+            alignItems="center"
+          >
+            <img src={logo} alt="" width={128} />
+            <Typography variant="h4" color="primary.main" fontWeight="600">
+              DWEC Winery
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} sm={6} md={6}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="end"
+            alignItems="end"
+          >
+            <Typography
+              gutterBottom={true}
+              variant="h5"
+              color="secondary.main"
+              fontWeight="600"
+            >
+              {`Order No:  ${orderNo}`}
+            </Typography>
+            <Typography>{`Order Created On  ${orderDate}`}</Typography>
+          </Box>
+        </Grid>
+      </Grid>
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="start"
+        alignItems="stretch"
+      ></Box>
+    </Box>
+  );
+};
+
 const ActionButton = ({ selected }) => {
   const classes = useStyles();
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [openPreviewModal, setOpenPreviewModal] = React.useState(false);
   const [openCompleted, setOpenCompleted] = React.useState(false);
   const [openCancel, setOpenCancel] = React.useState(false);
 
@@ -51,10 +127,6 @@ const ActionButton = ({ selected }) => {
   const handleCloseMoreAction = () => {
     setAnchorEl(null);
     setOpenCompleted(false);
-    setOpenPreviewModal(false);
-  };
-  const handlePreview = () => {
-    setOpenPreviewModal(true);
   };
 
   const handleCompleted = () => {
@@ -168,20 +240,28 @@ const ActionButton = ({ selected }) => {
         TransitionComponent={Fade}
         elevation={1}
       >
-        <MenuItem onClick={handlePreview}>
+        <MenuItem
+          onClick={() =>
+            history.push({
+              pathname: "/dashboard/dwec/orders/" + selected?.row?.orderNo,
+              state: {
+                item: selected?.row,
+              },
+            })
+          }
+        >
           <ListItemIcon>
             <VisibilityIcon fontSize="small" />
           </ListItemIcon>
           <ListItemText primary="Preview" />
         </MenuItem>
-        <CustomDialog
-          title="Preview Data"
-          bodyComponent={
-            <OrdersPreview item={selected?.row} setOpen={setOpenPreviewModal} />
-          }
-          open={openPreviewModal}
-          handleClose={handleCloseMoreAction}
-        />
+
+        <MenuItem>
+          <ListItemIcon>
+            <PrintRounded fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Print Receipt" />
+        </MenuItem>
         {((userData && userData?.userType === "Admin") ||
           (userData && userData?.userType === "Manager")) &&
         selected?.row ? (
@@ -189,22 +269,44 @@ const ActionButton = ({ selected }) => {
             {(selected?.row?.status === "Pending" ||
               selected?.row?.status === "In Shipping") && (
               <div>
-                {selected.row?.status !== "Cancelled" && (
-                  <>
-                    <MenuItem onClick={handleCompleted}>
-                      <ListItemIcon>
-                        <DoneAll fontSize="small" color="success" />
-                      </ListItemIcon>
-                      <ListItemText primary="Completed" />
-                    </MenuItem>
-                    <CustomDialog
-                      title="Mark As Completed"
-                      bodyComponent={renderCompletedConfirm}
-                      open={openCompleted}
-                      handleClose={() => setOpenCompleted(false)}
-                    />
-                  </>
-                )}
+                {selected.row?.status !== "Cancelled" &&
+                  (selected?.row?.deliveryType === "Pickup" ? (
+                    <>
+                      <MenuItem onClick={handleCompleted}>
+                        <ListItemIcon>
+                          <DoneAll fontSize="small" color="success" />
+                        </ListItemIcon>
+                        <ListItemText primary="Mark As Completed" />
+                      </MenuItem>
+                      <CustomDialog
+                        title="Mark As Completed"
+                        bodyComponent={renderCompletedConfirm}
+                        open={openCompleted}
+                        handleClose={() => setOpenCompleted(false)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <MenuItem
+                        onClick={() =>
+                          history.push({
+                            pathname:
+                              "/dashboard/dwec/orders/" +
+                              selected?.row?.orderNo +
+                              "/shipping",
+                            state: {
+                              item: selected?.row,
+                            },
+                          })
+                        }
+                      >
+                        <ListItemIcon>
+                          <BikeScooter fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary="Send For Shipping" />
+                      </MenuItem>
+                    </>
+                  ))}
 
                 {selected?.row?.status !== "Completed" && (
                   <>

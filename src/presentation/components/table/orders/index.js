@@ -11,6 +11,8 @@ import {
 import CustomNoRowsOverlay from "../../misc/placeholder/custom_no_data";
 import { useSelector } from "react-redux";
 import ActionButton from "./action_button";
+import NumberFormat from "react-number-format";
+import { TextField } from "@mui/material";
 
 function CustomToolbar() {
   return (
@@ -32,53 +34,59 @@ export default function OrdersTable() {
     },
     {
       field: "createdAt",
-      headerName: "DATE",
-      width: 90,
+      headerName: "ORDERED ON",
+      width: 160,
       valueGetter: (params) =>
-        `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
+        `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleString(
           "en-US"
         )}`,
     },
     {
-      field: "name",
-      headerName: "PRODUCT NAME",
-      width: 135,
+      field: "customerName",
+      headerName: "ORDERED BY",
+      width: 146,
+      minWidth: 146,
     },
     {
-      field: "category",
-      headerName: "CATEGORY",
-      width: 110,
-    },
-    {
-      field: "price",
-      headerName: "PRICE",
-      width: 86,
-    },
-    {
-      field: "quantity",
-      headerName: "QUANTITY",
-      width: 75,
-    },
-    {
-      field: "cost",
-      headerName: "COST",
-      width: 86,
+      field: "items",
+      headerName: "ITEMS",
+      width: 68,
+      valueGetter: (params) => `${params.row?.items?.length}`,
     },
     {
       field: "deliveryType",
       headerName: "DELIVERY",
-      width: 90,
+      width: 95,
+    },
+    {
+      field: "deliveryFee",
+      headerName: "DELIVERY FEE",
+      width: 120,
+      renderCell: (params) => {
+        return (
+          <NumberFormat
+            customInput={TextField}
+            value={params?.row?.deliveryFee}
+            thousandSeparator={true}
+            prefix={"₦"}
+            fullWidth
+            size="small"
+            disabled={true}
+            variant="filled"
+          />
+        );
+      },
     },
     {
       field: "paymentMethod",
       headerName: "PAYMENT",
-      width: 86,
+      width: 92,
       valueGetter: (params) => `${params.row?.paymentMethod}`.toUpperCase(),
     },
     {
       field: "status",
       headerName: "STATUS",
-      width: 96,
+      width: 90,
     },
     {
       field: "id",

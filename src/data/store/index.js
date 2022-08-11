@@ -10,6 +10,7 @@ import suppliersReducer from "./slice/suppliers";
 import stocksReducer from "./slice/stocks";
 import salesReducer from "./slice/sales";
 import proofsReducer from "./slice/proofs";
+import posReducer from "./slice/pos";
 
 export default configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export default configureStore({
     user: userReducer,
     sales: salesReducer,
     orders: ordersReducer,
+    pos: posReducer,
     stocks: stocksReducer,
     proofs: proofsReducer,
     supports: supportReducer,

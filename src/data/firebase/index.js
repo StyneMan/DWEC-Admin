@@ -22,6 +22,7 @@ import {
   arrayUnion,
   arrayRemove,
   Timestamp,
+  increment,
   serverTimestamp,
 } from "firebase/firestore";
 // import { FieldValue, arrayUnion } from "firebase/firestore/lite";
@@ -71,7 +72,7 @@ export {
   storage,
   query,
   where,
-  // arrUnion,
+  increment,
   arrayRemove,
   deleteDoc,
   updateDoc,

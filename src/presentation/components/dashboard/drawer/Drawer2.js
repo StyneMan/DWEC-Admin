@@ -111,10 +111,6 @@ const Drawer2 = (props) => {
             children: [
               { title: "Products", to: "/dashboard/dwec/products" },
               { title: "Add New", to: "/dashboard/dwec/products/create" },
-              {
-                title: "Bulk Upload",
-                to: "/dashboard/dwec/products/bulk-upload",
-              },
             ],
           },
           {
@@ -144,7 +140,7 @@ const Drawer2 = (props) => {
               { title: "Deliveries", to: "/dashboard/dwec/deliveries" },
               {
                 title: "Delivery Agencies",
-                to: "/dashboard/dwec/deliveries-agencies",
+                to: "/dashboard/dwec/delivery-agencies",
               },
               {
                 title: "Add Delivery Agency",
@@ -255,10 +251,6 @@ const Drawer2 = (props) => {
             children: [
               { title: "Products", to: "/dashboard/dwec/products" },
               { title: "Add New", to: "/dashboard/dwec/products/create" },
-              {
-                title: "Bulk Upload",
-                to: "/dashboard/dwec/products/bulk-upload",
-              },
             ],
           },
           {

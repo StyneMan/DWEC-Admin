@@ -6,16 +6,17 @@ import {
 } from "react-material-ui-form-validator";
 import { makeStyles } from "@mui/styles";
 import Button from "@mui/material/Button";
-import { db, setDoc, doc } from "../../../data/firebase";
+import { db, setDoc, doc, updateDoc, increment } from "../../../data/firebase";
 import { useSnackbar } from "notistack";
 import Backdrop from "@mui/material/Backdrop";
 import { Box } from "@mui/system";
-import { CircularProgress, Grid, MenuItem } from "@mui/material";
+import { CircularProgress, Grid, MenuItem, TextField } from "@mui/material";
 import { Typography } from "@mui/material";
 import QuillEditor from "../../components/misc/richtext/quill";
 import { useHistory } from "react-router-dom";
 import { ArrowBackIosNew } from "@mui/icons-material";
 import { useSelector } from "react-redux";
+import NumberFormat from "react-number-format";
 
 const useStyles = makeStyles((theme) => ({
   image: {
@@ -40,6 +41,8 @@ const AddStockForm = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [summaryBody, setSummaryBody] = React.useState(null);
   const [wareh, setWareH] = React.useState([]);
+  const [unitPrice, setUnitPrice] = React.useState(1);
+  const [total, setTotal] = React.useState(1);
   const { enqueueSnackbar } = useSnackbar();
 
   const { productsData } = useSelector((state) => state.products);
@@ -49,14 +52,13 @@ const AddStockForm = (props) => {
     const { name, value } = e.target;
     setFormValues((prevData) => ({ ...prevData, [name]: value }));
     if (name === "supplier") {
-      //   console.log(
-      //     "DATALIZE::",
-      //     suppliersData?.filter((item) => item.name === value)
-      //   );
       const filter = suppliersData?.filter((item) => item?.name === value);
-      console.log("KLJD::", filter[0]);
       let item = filter[0];
       setWareH(item?.warehouses);
+    }
+    if (name === "quantity") {
+      var tota = value * unitPrice;
+      setTotal(tota);
     }
   };
 
@@ -68,17 +70,36 @@ const AddStockForm = (props) => {
       product: formValues.product,
       supplier: formValues.supplier,
       warehouse: formValues.warehouse,
+      unitPrice: unitPrice,
+      cost: total,
       createdAt: timeNow,
       updatedAt: timeNow,
       quantity: formValues.quantity,
       summary: summaryBody,
     })
-      .then((res) => {
-        setIsLoading(false);
-        enqueueSnackbar(`Stock added successfully`, {
-          variant: "success",
-        });
-        history.goBack();
+      .then(async (res) => {
+        //Update product quantity here
+        const mRef = doc(db, "products", "" + formValues.product);
+        try {
+          await updateDoc(mRef, {
+            quantity: increment(formValues.quantity),
+          });
+
+          //Send email to customer here informinhg them that order is placed for delivery.
+
+          setIsLoading(false);
+          enqueueSnackbar(`Stock added successfully`, {
+            variant: "success",
+          });
+          history.goBack();
+        } catch (error) {
+          enqueueSnackbar(
+            `${error?.message || "Error. Check internet connection."}`,
+            {
+              variant: "error",
+            }
+          );
+        }
       })
       .catch((error) => {
         setIsLoading(false);
@@ -114,7 +135,7 @@ const AddStockForm = (props) => {
           paddingBottom={2}
         >
           <Button
-            variant="contained"
+            variant="text"
             startIcon={<ArrowBackIosNew />}
             onClick={() => history.goBack()}
           >
@@ -131,7 +152,7 @@ const AddStockForm = (props) => {
           </Typography>
         </Box>
 
-        <Grid container spacing={1} marginBottom={1}>
+        <Grid container spacing={1}>
           <Grid item xs={12} sm={6} md={6}>
             <SelectValidator
               className={classes.mb}
@@ -178,8 +199,6 @@ const AddStockForm = (props) => {
           </Grid>
         </Grid>
 
-        <br />
-
         <Grid container spacing={1} marginBottom={1}>
           <Grid item xs={12} sm={6} md={6}>
             <div>
@@ -222,6 +241,43 @@ const AddStockForm = (props) => {
                 errorMessages={["Quantity is required image is required"]}
               />
             </div>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={1} marginBottom={1}>
+          <Grid item xs={12} sm={6} md={6}>
+            <NumberFormat
+              customInput={TextField}
+              onValueChange={(values) => {
+                setUnitPrice(values.value);
+                setTotal(values.value * formValues.quantity);
+              }}
+              value={unitPrice}
+              thousandSeparator={true}
+              prefix={"₦"}
+              fullWidth
+              size="small"
+              placeholder="Enter unit price"
+              variant="outlined"
+              label="Price"
+              required
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6}>
+            <NumberFormat
+              customInput={TextField}
+              onValueChange={(values) => {}}
+              value={total}
+              thousandSeparator={true}
+              prefix={"₦"}
+              fullWidth
+              disabled={true}
+              size="small"
+              placeholder="Total price"
+              variant="outlined"
+              label="Total Amount"
+              required
+            />
           </Grid>
         </Grid>
 

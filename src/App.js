@@ -23,7 +23,10 @@ import {
   setAboutData,
 } from "./data/store/slice/cms";
 import { setCategoryData } from "./data/store/slice/category";
-import { setDeliveryData } from "./data/store/slice/deliveries";
+import {
+  setDeliveryAgenciesData,
+  setDeliveryData,
+} from "./data/store/slice/deliveries";
 import { setSupportsData } from "./data/store/slice/support";
 import { setOrdersData } from "./data/store/slice/orders";
 import { setProductsData } from "./data/store/slice/products";
@@ -33,6 +36,7 @@ import { setSuppliersData } from "./data/store/slice/suppliers";
 import { setStocksData } from "./data/store/slice/stocks";
 import { setSalesData } from "./data/store/slice/sales";
 import { setProofsData } from "./data/store/slice/proofs";
+import { setPOSTransData } from "./data/store/slice/pos";
 
 function App() {
   const dispatch = useDispatch();
@@ -108,6 +112,15 @@ function App() {
         dispatch(setDeliveryData(deliveries));
       });
 
+      const deliveryAgenciesQuery = query(collection(db, "delivery-agency"));
+      onSnapshot(deliveryAgenciesQuery, (querySnapshot) => {
+        const agencies = [];
+        querySnapshot.forEach((doc) => {
+          agencies.push(doc.data());
+        });
+        dispatch(setDeliveryAgenciesData(agencies));
+      });
+
       const supportQuery = query(collection(db, "support"));
       onSnapshot(supportQuery, (querySnapshot) => {
         const support = [];
@@ -133,6 +146,15 @@ function App() {
           sales.push(doc.data());
         });
         dispatch(setSalesData(sales));
+      });
+
+      const posTransQuery = query(collection(db, "pos_transactions"));
+      onSnapshot(posTransQuery, (querySnapshot) => {
+        const data = [];
+        querySnapshot.forEach((doc) => {
+          data.push(doc.data());
+        });
+        dispatch(setPOSTransData(data));
       });
 
       const productsQuery = query(collection(db, "products"));

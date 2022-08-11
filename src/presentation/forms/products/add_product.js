@@ -301,6 +301,7 @@ const AddProductForm = () => {
               label="Stock Quantity"
               size="small"
               variant="outlined"
+              disabled={true}
               value={formValues.quantity}
               onChange={handleChange}
               name="quantity"

@@ -15,9 +15,9 @@ import {
 } from "../../../data/firebase";
 import { useSnackbar } from "notistack";
 import Backdrop from "@mui/material/Backdrop";
-import { Box } from "@mui/system";
+import Box from "@mui/system/Box";
 import { CircularProgress, Grid, TextField } from "@mui/material";
-import { Typography } from "@mui/material";
+import Typography from "@mui/material/Typography";
 import QuillEditor from "../../components/misc/richtext/quill";
 import { useHistory } from "react-router-dom";
 import { ArrowBackIosNew } from "@mui/icons-material";
@@ -193,9 +193,14 @@ const AddBlogForm = (props) => {
                         });
                       } catch (error) {
                         setIsLoading(false);
-                        enqueueSnackbar(`${error?.message}`, {
-                          variant: "error",
-                        });
+                        enqueueSnackbar(
+                          `${
+                            error?.message || "Check your internet connection!"
+                          }`,
+                          {
+                            variant: "error",
+                          }
+                        );
                       }
                     }
                   );

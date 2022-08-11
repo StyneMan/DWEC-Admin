@@ -1,26 +1,34 @@
-import Print from "@mui/icons-material/Print";
 import ArrowBackIosNew from "@mui/icons-material/ArrowBackIosNew";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/system/Box";
 import React from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import OrderItemsTable from "./items_table";
 
-const OrdersPreview = () => {
+import CustomDialog from "../../../../components/dashboard/dialogs/custom-dialog";
+import DeliveryForm from "../../../../forms/delivery/delivery_form";
+
+const OrderShipping = () => {
   const location = useLocation();
   const history = useHistory();
   let { item } = location.state;
-
-  const handlePrint = () => {};
+  const [open, setOpen] = React.useState(false);
 
   return (
     <div>
+      <CustomDialog
+        title="Assign Delivery"
+        bodyComponent={<DeliveryForm setOpen={setOpen} order={item} />}
+        open={open}
+        handleClose={() => setOpen(false)}
+      />
       <Box
+        width={"100%"}
         display="flex"
         flexDirection="row"
-        justifyContent="space-between"
-        alignItems="center"
+        justifyContent="start"
+        alignItems={"start"}
+        paddingBottom={2}
       >
         <Button
           variant="text"
@@ -29,16 +37,15 @@ const OrdersPreview = () => {
         >
           Back
         </Button>
-
-        <Button variant="contained" startIcon={<Print />} onClick={handlePrint}>
-          Print Receipt
-        </Button>
-      </Box>
-      <Box p={3}>
-        <Typography variant="h5" fontWeight="600" color="primary.main">
-          Order Summary
+        <Typography
+          px={4}
+          textTransform={"uppercase"}
+          variant="h6"
+          fontWeight="700"
+          color="primary.main"
+        >
+          ORDER SHIPPING
         </Typography>
-        <Typography>{`Below is the order summary for ${item?.customerName}'s order with the order number, ${item?.orderNo}`}</Typography>
       </Box>
 
       <Box
@@ -100,6 +107,7 @@ const OrdersPreview = () => {
             <Typography variant="h6" fontWeight="600">
               Delivery Details
             </Typography>
+            <Typography>{`Total Items: ${item?.items?.length}`}</Typography>
             <Typography>
               {`Delivering To: ${item?.deliveryInfo?.customerName}`}
             </Typography>
@@ -122,13 +130,19 @@ const OrdersPreview = () => {
         justifyContent="start"
         alignItems="start"
       >
-        <Typography variant="h6" fontWeight="600">
-          Items Ordered
+        <Typography variant="h6" fontWeight="600" pr={4} gutterBottom>
+          Delivery Scheduling
         </Typography>
-        <OrderItemsTable items={item?.items} />
+        <Button
+          textTransform="capitalize"
+          variant="contained"
+          onClick={() => setOpen(true)}
+        >
+          Schedule Now
+        </Button>
       </Box>
     </div>
   );
 };
 
-export default OrdersPreview;
+export default OrderShipping;

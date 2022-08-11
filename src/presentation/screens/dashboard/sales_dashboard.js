@@ -10,8 +10,8 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import { Box } from "@mui/system";
-import React from "react";
+import Box from "@mui/system/Box";
+import React, { forwardRef, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSnackbar } from "notistack";
 import logo from "../../../assets/images/dwec_round.png";
@@ -24,13 +24,17 @@ import {
   updateDoc,
   setDoc,
   arrayRemove,
+  increment,
 } from "../../../data/firebase";
 import { setInitValue, setTriggerPOS } from "../../../data/store/slice/sales";
-import { DeliveryDining } from "@mui/icons-material";
+import DeliveryDining from "@mui/icons-material/DeliveryDining";
 import CustomDialog from "../../components/dashboard/dialogs/custom-dialog";
 import CustomDialog2 from "../../components/dashboard/dialogs/custom-dialog";
 import ShippingForm from "../../forms/shipping/shipping_form";
 import { setSalesDeliveryData } from "../../../data/store/slice/deliveries";
+import ReactToPrint from "react-to-print";
+import "./print.css";
+import ReceiptTable from "../../components/table/pos/receipt_table";
 
 const ItemCard = (props) => {
   let { item, userData, list } = props;
@@ -91,6 +95,145 @@ const ItemCard = (props) => {
   );
 };
 
+const ComponentToPrint = forwardRef((props, ref) => {
+  let { deliveryType, deliveryInfo, summaryBody } = props;
+
+  const renderSignature = (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="start"
+      alignItems="start"
+    >
+      {deliveryInfo && (
+        <Typography gutterBottom textAlign="justify">
+          I ........................................... certify that the above
+          item(s) was delivered to my adress {`${deliveryInfo.address}`} this
+          day, {`${new Date()}`}. Item(s) was well received by me.
+        </Typography>
+      )}
+      <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Typography>...........................................</Typography>
+        <Typography fontStyle={"italic"} fontSize={13}>
+          Signature & Date
+        </Typography>
+      </Box>
+    </Box>
+  );
+
+  return (
+    <div className="print-source" ref={ref}>
+      <Box
+        padding={2}
+        width="100%"
+        display="flex"
+        flexDirection="row"
+        justifyContent="start"
+        alignItems="center"
+      >
+        <img src={logo} alt="" width={72} />
+        <Typography variant="h4" fontWeight={"700"}>
+          DWEC Winery
+        </Typography>
+      </Box>
+      <Box
+        bgcolor={"primary.light"}
+        padding={3}
+        height="100%"
+        width="100%"
+        display="flex"
+        flexDirection="column"
+        justifyContent="start"
+        alignItems="start"
+      >
+        <Typography
+          variant="h6"
+          gutterBottom
+        >{`Dear DWEC Winery customer,`}</Typography>
+        <Typography variant="h6" gutterBottom>
+          Thank you for shopping with us.
+        </Typography>
+        <Box
+          display="flex"
+          flexDirection="row"
+          justifyContent="start"
+          alignItems="center"
+        >
+          <Typography
+            color="primary.main"
+            variant="h5"
+            fontWeight="600"
+            textTransform={"uppercase"}
+            pr={1}
+          >
+            Delivery Method:
+          </Typography>
+          <Typography variant="h6">{deliveryType}</Typography>
+        </Box>
+        {deliveryType !== "Pickup" && (
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="start"
+            alignItems="start"
+          >
+            <Typography
+              color="primary.main"
+              variant="h5"
+              fontWeight="600"
+              gutterBottom={true}
+              textTransform={"uppercase"}
+            >
+              Delivery Information:
+            </Typography>
+            <Typography variant="h6" fontWeight="600">
+              Delivery Address
+            </Typography>
+            <Typography gutterBottom>{deliveryInfo.address}</Typography>
+
+            <Typography variant="h6" fontWeight="600">
+              Delivery City
+            </Typography>
+            <Typography gutterBottom>{deliveryInfo.city}</Typography>
+
+            <Typography variant="h6" fontWeight="600">
+              Email Address
+            </Typography>
+            <Typography gutterBottom>{deliveryInfo.email}</Typography>
+
+            <Typography variant="h6" fontWeight="600">
+              Phone Number
+            </Typography>
+            <Typography gutterBottom>{deliveryInfo.phone}</Typography>
+          </Box>
+        )}
+        <Box
+          width="100%"
+          display="flex"
+          flexDirection="column"
+          justifyContent="start"
+          alignItems="start"
+        >
+          <Typography variant="h6" gutterBottom>
+            You ordered for:
+          </Typography>
+          <ReceiptTable />
+          <Divider />
+          {summaryBody}
+        </Box>
+        <Divider />
+        <Toolbar />
+        {renderSignature}
+      </Box>
+    </div>
+  );
+});
+
 const Receipt = (props) => {
   const dispatch = useDispatch();
   const [openProceed, setOpenProceed] = React.useState(false);
@@ -99,21 +242,22 @@ const Receipt = (props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { salesDeliveryData } = useSelector((state) => state.delivery);
 
+  // const ref = useRef();
+  const componentRef = useRef();
+
   React.useEffect(() => {
     if (triggerPOS) {
       userData?.sales?.forEach((elem) => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         dispatch(setInitValue((initValue += elem?.cost)));
       });
     }
   }, [triggerPOS]);
 
   const confirmCash = async () => {
-    //add to sales table here
-    // Timestamp.now();
-    // serverTimestamp();
     const timeNow = new Date();
     const usersRef = doc(db, "users", `${userData?.id}`);
-    // console.log("POPOK::>", timeNow);
+    // const productRef = doc(db, "products", `${userData?.id}`);
     try {
       userData?.sales?.forEach((elem) => {
         setDoc(doc(db, "sales", `${timeNow.getTime()}`), {
@@ -131,9 +275,33 @@ const Receipt = (props) => {
           rep: userData?.firstname + " " + userData?.lastname,
           soldOn: timeNow,
         });
+
+        //Now update product quantity
+        updateDoc(doc(db, "products", `${elem?.productId}`), {
+          quantity: increment(-elem?.quantity),
+        });
       });
+
       //Now delete all cart/sales array
       await userData?.sales?.forEach(async (elem) => {
+        //Add to trasactions
+        await setDoc(doc(db, "pos_transactions", `${timeNow.getTime()}`), {
+          id: timeNow.getTime(),
+          avatar: userData?.image,
+          image: elem?.image,
+          product: elem?.productId,
+          name: elem?.name,
+          price: elem?.price,
+          quantity: elem?.quantity,
+          cost: elem?.cost,
+          deliveryType: salesDeliveryData !== null ? "Door Delivery" : "Pickup",
+          deliveryInfo: salesDeliveryData,
+          status: "Paid",
+          rep: userData?.firstname + " " + userData?.lastname,
+          repId: userData?.id,
+          soldOn: timeNow,
+        });
+
         await updateDoc(usersRef, {
           sales: arrayRemove(elem),
         });
@@ -281,9 +449,89 @@ const Receipt = (props) => {
         >
           Close
         </Button>
-        <Button variant="contained" sx={{ textTransform: "capitalize", mx: 1 }}>
-          Offline Payment
-        </Button>
+        <div>
+          <ReactToPrint
+            trigger={() => (
+              <Button
+                variant="contained"
+                sx={{ textTransform: "capitalize", mx: 1 }}
+              >
+                Print
+              </Button>
+            )}
+            content={() => componentRef.current}
+          />
+          <ComponentToPrint
+            deliveryType={
+              salesDeliveryData === null ? "Pickup" : "Door Delivery"
+            }
+            summaryBody={
+              <Box
+                pt={6}
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
+                <Box
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  paddingY={1}
+                >
+                  <Typography px={2} variant="h5">
+                    Sub total
+                  </Typography>
+                  <CurrencyFormat
+                    value={initValue}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"₦"}
+                  />
+                </Box>
+
+                <Box
+                  paddingY={1}
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography px={2} variant="h5">
+                    Tax
+                  </Typography>
+                  <CurrencyFormat
+                    value={tax}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"₦"}
+                  />
+                </Box>
+
+                <Box
+                  paddingY={1}
+                  display="flex"
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Typography px={2} variant="h5">
+                    Total
+                  </Typography>
+                  <CurrencyFormat
+                    value={tax + initValue}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                    prefix={"₦"}
+                  />
+                </Box>
+              </Box>
+            }
+            deliveryInfo={salesDeliveryData}
+            ref={componentRef}
+          />
+        </div>
         <Button
           color="success"
           variant="contained"
@@ -442,7 +690,7 @@ const SalesDashboard = () => {
 
   React.useEffect(() => {
     dispatch(setTriggerPOS("product"));
-  }, []);
+  }, [dispatch]);
 
   React.useEffect(() => {
     if (initValue) {

@@ -51,7 +51,10 @@ import {
 } from "../../../data/store/slice/cms";
 import { collection, db, doc, query, onSnapshot } from "../../../data/firebase";
 import { setCategoryData } from "../../../data/store/slice/category";
-import { setDeliveryData } from "../../../data/store/slice/deliveries";
+import {
+  setDeliveryAgenciesData,
+  setDeliveryData,
+} from "../../../data/store/slice/deliveries";
 import { setSupportsData } from "../../../data/store/slice/support";
 import { setOrdersData } from "../../../data/store/slice/orders";
 import ContactUsForm from "../../forms/contact-us";
@@ -82,6 +85,13 @@ import DeliveryAgencies from "./tabs/delivery/delivery_agencies";
 import AddDeliveryAgency from "../../forms/delivery/add_agency";
 import CalculatorWrapper from "../../components/wrapper/calculator_wrapper";
 import ClockWrapper from "../../components/wrapper/clock_wrapper";
+import AccountWrapper from "../../components/wrapper/account_wrapper";
+import MoreVertRounded from "@mui/icons-material/MoreVertRounded";
+import { setPOSTransData } from "../../../data/store/slice/pos";
+import OrdersPreview from "../../components/table/orders/preview";
+import OrderShipping from "./tabs/orders/order_shipping";
+import DeliveryAgencyPreview from "../../components/table/delivery-agencies/preview";
+import AddAgentForm from "../../forms/delivery/add_agent";
 
 const drawerWidth = 270;
 const useStyles = makeStyles((theme) => ({
@@ -165,17 +175,34 @@ function Dashboard(props) {
   const [content, setContent] = React.useState(null);
   const dispatch = useDispatch();
 
+  const [anchorElMore, setAnchorElMore] = React.useState(null);
+  const openMore = Boolean(anchorElMore);
+  const handleClick = (event) => {
+    setAnchorElMore(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorElMore(null);
+  };
+
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
   const [anchorPopperEl, setAnchorPopperEl] = React.useState(null);
+  // const [anchorPopperEl2, setAnchorPopperEl2] = React.useState(null);
 
   const handlePopperClick = (event) => {
     setAnchorPopperEl(anchorPopperEl ? null : event?.currentTarget);
   };
 
+  // const handlePopperClick2 = (event) => {
+  //   setAnchorPopperEl2(anchorPopperEl2 ? null : event?.currentTarget);
+  // };
+
   const openPopper = Boolean(anchorPopperEl);
   const popperId = openPopper ? "simple-popper" : undefined;
+
+  // const openPopper2 = Boolean(anchorPopperEl2);
+  // const popperId2 = openPopper2 ? "simply-popper" : undefined;
 
   const handleBackdrop = (value) => {
     setOpenSignoutBackDrop(value);
@@ -270,6 +297,15 @@ function Dashboard(props) {
         dispatch(setDeliveryData(deliveries));
       });
 
+      const deliveryAgenciesQuery = query(collection(db, "delivery-agency"));
+      onSnapshot(deliveryAgenciesQuery, (querySnapshot) => {
+        const agencies = [];
+        querySnapshot.forEach((doc) => {
+          agencies.push(doc.data());
+        });
+        dispatch(setDeliveryAgenciesData(agencies));
+      });
+
       const supportQuery = query(collection(db, "support"));
       onSnapshot(supportQuery, (querySnapshot) => {
         const support = [];
@@ -295,6 +331,15 @@ function Dashboard(props) {
           products.push(doc.data());
         });
         dispatch(setProductsData(products));
+      });
+
+      const posTransQuery = query(collection(db, "pos_transactions"));
+      onSnapshot(posTransQuery, (querySnapshot) => {
+        const data = [];
+        querySnapshot.forEach((doc) => {
+          data.push(doc.data());
+        });
+        dispatch(setPOSTransData(data));
       });
 
       const suppliersQuery = query(collection(db, "suppliers"));
@@ -504,9 +549,20 @@ function Dashboard(props) {
                   >
                     <BulkUpload />
                   </Route>
+
                   <Route path="/dashboard/dwec/orders" exact={true}>
                     <Orders />
                   </Route>
+                  <Route path="/dashboard/dwec/orders/:id" exact={true}>
+                    <OrdersPreview />
+                  </Route>
+                  <Route
+                    path="/dashboard/dwec/orders/:id/shipping"
+                    exact={true}
+                  >
+                    <OrderShipping />
+                  </Route>
+
                   <Route path="/dashboard/dwec/payment-proofs" exact={true}>
                     <PaymentProofs />
                   </Route>
@@ -516,17 +572,26 @@ function Dashboard(props) {
                   <Route path="/dashboard/dwec/deliveries" exact={true}>
                     <Delivery />
                   </Route>
+                  <Route path="/dashboard/dwec/delivery-agencies" exact={true}>
+                    <DeliveryAgencies />
+                  </Route>
                   <Route
-                    path="/dashboard/dwec/deliveries-agencies"
+                    path="/dashboard/dwec/delivery-agencies/:id"
                     exact={true}
                   >
-                    <DeliveryAgencies />
+                    <DeliveryAgencyPreview />
                   </Route>
                   <Route
                     path="/dashboard/dwec/deliveries-agencies/create"
                     exact={true}
                   >
                     <AddDeliveryAgency />
+                  </Route>
+                  <Route
+                    path="/dashboard/dwec/deliveries-agencies/:id/agents/create"
+                    exact={true}
+                  >
+                    <AddAgentForm />
                   </Route>
 
                   <Route path="/dashboard/dwec/category" exact={true}>
@@ -618,6 +683,13 @@ function Dashboard(props) {
       } else {
         setContent(
           <div>
+            <Backdrop style={{ zIndex: 5000 }} open={openSignoutBackDrop}>
+              <CircularProgress
+                size={90}
+                thickness={3.0}
+                style={{ color: "white" }}
+              />
+            </Backdrop>
             <AppBar color="inherit">
               <Toolbar>
                 <Box
@@ -674,6 +746,27 @@ function Dashboard(props) {
                         {userData?.image !== "" ? "" : initials}
                       </Avatar>
                     </IconButton>
+
+                    <IconButton
+                      id="basic-button"
+                      aria-controls={openMore ? "basic-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={openMore ? "true" : undefined}
+                      onClick={handleClick}
+                    >
+                      <MoreVertRounded />
+                    </IconButton>
+                    <Menu
+                      id="basic-menu"
+                      anchorEl={anchorElMore}
+                      open={openMore}
+                      onClose={handleClose}
+                      MenuListProps={{
+                        "aria-labelledby": "basic-button",
+                      }}
+                    >
+                      <AccountWrapper handleBackdrop={handleBackdrop} />
+                    </Menu>
                   </Box>
                 </Box>
               </Toolbar>
@@ -693,7 +786,7 @@ function Dashboard(props) {
         );
       }
     }
-  }, [anchorPopperEl]);
+  }, [anchorPopperEl, anchorElMore]);
 
   return content;
 }

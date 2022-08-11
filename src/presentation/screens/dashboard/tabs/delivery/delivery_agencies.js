@@ -5,7 +5,7 @@ import { Add } from "@mui/icons-material";
 import { useSelector } from "react-redux";
 import { Typography } from "@mui/material";
 import { useHistory } from "react-router-dom";
-import StocksTable from "../../../../components/table/stock";
+import DeliveryAgenciesTable from "../../../../components/table/delivery-agencies";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -94,7 +94,7 @@ const DeliveryAgencies = () => {
         </Button>
       </div>
       <br />
-      <StocksTable />
+      <DeliveryAgenciesTable />
     </div>
   );
 };

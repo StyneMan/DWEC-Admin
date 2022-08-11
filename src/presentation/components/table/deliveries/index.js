@@ -30,41 +30,63 @@ export default function DeliveriesTable() {
       field: "orderNo",
       headerName: "ORDER NO:",
       width: 100,
+      valueGetter: (params) => `${params?.row?.order?.orderNo}`,
     },
     {
       field: "createdAt",
       headerName: "ORDER DATE",
-      width: 120,
+      width: 110,
       valueGetter: (params) =>
-        `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
-          "en-US"
-        )}`,
+        `${new Date(
+          params.row?.order?.createdAt?.seconds * 1000
+        ).toLocaleDateString("en-US")}`,
+    },
+    {
+      field: "customerName",
+      headerName: "CUSTOMER",
+      width: 128,
+      renderCell: (params) => {
+        return (
+          <Typography fontSize={13}>
+            {params?.row?.order?.customerName}
+          </Typography>
+        );
+      },
     },
     {
       field: "address",
       headerName: "DELIVERY ADDRESS",
-      width: 200,
+      width: 192,
       renderCell: (params) => {
-        return <Typography>{params?.deliveryInfo?.address}</Typography>;
+        return (
+          <Typography fontSize={13}>
+            {params?.row?.order?.deliveryInfo?.address}
+          </Typography>
+        );
       },
     },
     {
       field: "agentName",
       headerName: "DELIVERY AGENT",
-      width: 200,
+      width: 144,
       renderCell: (params) => {
-        return <Typography>{params?.deliveryInfo?.agentName}</Typography>;
+        return (
+          <Typography
+            fontSize={13}
+          >{`${params?.row?.agent?.firstname} ${params?.row?.agent?.lastname}`}</Typography>
+        );
       },
     },
     {
       field: "agentPhone",
       headerName: "PHONE",
-      width: 130,
+      width: 118,
+      valueGetter: (params) => `${params?.row?.agent?.phone}`,
     },
     {
       field: "status",
       headerName: "STATUS",
-      width: 100,
+      width: 84,
     },
     {
       field: "id",
@@ -76,23 +98,12 @@ export default function DeliveriesTable() {
     },
   ];
 
-  const [mData, setMData] = React.useState();
-  // const { deliverordersyData } = useSelector((state) => state.delivery);
-  const { ordersData } = useSelector((state) => state.orders);
-
-  React.useEffect(() => {
-    if (ordersData) {
-      let val = ordersData?.filter(
-        (item) => item?.deliveryType === "Door Delivery"
-      );
-      setMData(val);
-    }
-  }, [ordersData]);
+  const { deliveryData } = useSelector((state) => state.delivery);
 
   return (
     <div style={{ height: 400, width: "100%" }}>
       <DataGrid
-        rows={mData}
+        rows={deliveryData}
         columns={columns}
         components={{
           Toolbar: CustomToolbar,

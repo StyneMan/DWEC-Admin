@@ -15,10 +15,10 @@ import {
 import { useSnackbar } from "notistack";
 import Backdrop from "@mui/material/Backdrop";
 import Grid from "@mui/material/Grid";
-import Chip from "@mui/material/Chip";
-import Input from "@mui/material/Input";
+// import Chip from "@mui/material/Chip";
+// import Input from "@mui/material/Input";
 import CircularProgress from "@mui/material/CircularProgress";
-import FormControl from "@mui/material/FormControl";
+// import FormControl from "@mui/material/FormControl";
 import Box from "@mui/system/Box";
 import Typography from "@mui/material/Typography";
 import { useHistory } from "react-router-dom";
@@ -78,8 +78,8 @@ const AddDeliveryAgency = () => {
   const [progress, setProgress] = React.useState(0);
   const [previewPassport, setPreviewPassport] = React.useState("");
 
-  const [warehouses, setWarehouses] = React.useState([]);
-  const [currValue, setCurrValue] = React.useState("");
+  // const [warehouses, setWarehouses] = React.useState([]);
+  // const [currValue, setCurrValue] = React.useState("");
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -104,25 +104,7 @@ const AddDeliveryAgency = () => {
     }
   };
 
-  const handleKeyUp = (e) => {
-    // console.log(e.keyCode);
-    if (e.keyCode === 32) {
-      setWarehouses((oldState) => [...oldState, e.target.value]);
-      setCurrValue("");
-    }
-  };
-
-  const handleChipChange = (e) => {
-    setCurrValue(e.target.value);
-  };
-
-  const handleDelete = (item, index) => {
-    let arr = [...warehouses];
-    arr.splice(index, 1);
-    setWarehouses(arr);
-  };
-
-  const createSupplier = (e) => {
+  const createAgency = (e) => {
     setIsUploading(true);
     const timeNow = new Date();
     //First upload image to firebase storage then save to firestore
@@ -154,11 +136,12 @@ const AddDeliveryAgency = () => {
             address: formValues.address,
             email: formValues.email,
             phone: formValues.phone,
-            agents: warehouses,
+            agents: [],
+            createdAt: timeNow,
           })
             .then((res) => {
               setIsLoading(false);
-              enqueueSnackbar(`New supplier added successfully`, {
+              enqueueSnackbar(`Delivery agency added successfully`, {
                 variant: "success",
               });
               history.goBack();
@@ -191,7 +174,7 @@ const AddDeliveryAgency = () => {
           <div />
         )}
       </Backdrop>
-      <ValidatorForm onSubmit={createSupplier}>
+      <ValidatorForm onSubmit={createAgency}>
         <Box
           width={"100%"}
           display="flex"
@@ -311,7 +294,7 @@ const AddDeliveryAgency = () => {
         </Grid>
         <br />
 
-        <FormControl fullWidth classes={{ root: classes.formControlRoot }}>
+        {/* <FormControl fullWidth classes={{ root: classes.formControlRoot }}>
           <div className={"container"}>
             {warehouses?.map((item, index) => (
               <Chip
@@ -330,7 +313,7 @@ const AddDeliveryAgency = () => {
             placeholder="Enter delivery agent's name, press spacebar to save"
           />
           <br />
-        </FormControl>
+        </FormControl> */}
 
         <br />
         <Button
