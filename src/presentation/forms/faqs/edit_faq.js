@@ -33,7 +33,7 @@ const EditFAQ = (props) => {
     setFormValues((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const createFAQ = async (e) => {
+  const updateFAQ = async (e) => {
     const timeNow = new Date();
 
     setIsLoading(true);
@@ -71,7 +71,7 @@ const EditFAQ = (props) => {
           <div />
         )}
       </Backdrop>
-      <ValidatorForm onSubmit={createFAQ}>
+      <ValidatorForm onSubmit={updateFAQ}>
         <TextField
           className={classes.mb}
           multiLine
@@ -87,7 +87,7 @@ const EditFAQ = (props) => {
           required
         />
 
-        <TextField
+        {/* <TextField
           className={classes.mb}
           multiLine
           minRows={2}
@@ -100,6 +100,21 @@ const EditFAQ = (props) => {
           name="answer"
           fullWidth
           required
+        /> */}
+
+        <TextField
+          className={classes.mb}
+          minRows={3}
+          label="Answer"
+          placeholder="Type answer here..."
+          size="small"
+          variant="outlined"
+          value={formValues.answer}
+          onChange={handleChange}
+          name="answer"
+          fullWidth
+          required
+          multiline
         />
 
         <Button

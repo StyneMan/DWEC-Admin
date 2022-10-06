@@ -4,13 +4,11 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-// import EmptyModal from "../modal/EmptyModal";
 import MoreVertIcon from "@mui/icons-material/MoreVertRounded";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import Fade from "@mui/material/Fade";
-// import DataPreview from "../miscellaneous/DataPreview";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { makeStyles } from "@mui/styles";
@@ -18,6 +16,7 @@ import CustomDialog from "../../dashboard/dialogs/custom-dialog";
 import Edit from "@mui/icons-material/Edit";
 import Delete from "@mui/icons-material/Delete";
 import SuppliersPreview from "./preview";
+import { useHistory } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   awardRoot: {
@@ -36,10 +35,10 @@ const useStyles = makeStyles((theme) => ({
 
 const ActionButton = ({ selected }) => {
   const classes = useStyles();
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openPreviewModal, setOpenPreviewModal] = React.useState(false);
-  const [openEdit, setOpenEdit] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
   const openAction = Boolean(anchorEl);
@@ -49,15 +48,11 @@ const ActionButton = ({ selected }) => {
 
   const handleCloseMoreAction = () => {
     setAnchorEl(null);
-    setOpenEdit(false);
     setOpenPreviewModal(false);
   };
+
   const handlePreview = () => {
     setOpenPreviewModal(true);
-  };
-
-  const handleEdit = () => {
-    setOpenEdit(true);
   };
 
   const handleDelete = () => {
@@ -145,18 +140,29 @@ const ActionButton = ({ selected }) => {
         {userData && userData?.userType === "Admin" && selected?.row ? (
           <div>
             <>
-              <MenuItem onClick={handleEdit}>
+              <MenuItem
+                onClick={() =>
+                  history.push({
+                    pathname:
+                      "/dashboard/dwec/stocks/suppliers/" +
+                      selected?.row?.id +
+                      "/edit",
+                    state: {
+                      id: selected?.row?.id,
+                      name: selected?.row?.name,
+                      image: selected?.row?.image,
+                      address: selected?.row?.address,
+                      email: selected?.row?.email,
+                      phone: selected?.row?.phone,
+                    },
+                  })
+                }
+              >
                 <ListItemIcon>
                   <Edit fontSize="small" color="success" />
                 </ListItemIcon>
                 <ListItemText primary="Edit" />
               </MenuItem>
-              <CustomDialog
-                title="Update Stock"
-                bodyComponent={<div />}
-                open={openEdit}
-                handleClose={() => setOpenEdit(false)}
-              />
             </>
             <>
               <MenuItem onClick={handleDelete}>

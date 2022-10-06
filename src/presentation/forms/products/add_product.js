@@ -79,7 +79,7 @@ const AddProductForm = () => {
   const [formValues, setFormValues] = React.useState({
     name: "",
     category: "",
-    quantity: 1,
+    quantity: 0,
   });
   const [file, setFile] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -145,10 +145,8 @@ const AddProductForm = () => {
             image: downloadURL,
             category: formValues.category,
             description: description,
-            price: price,
+            price: parseInt(`${price}`),
             quantity: formValues.quantity,
-            createdAt: timeNow,
-            updatedAt: timeNow,
           })
             .then((res) => {
               setIsLoading(false);
@@ -244,12 +242,16 @@ const AddProductForm = () => {
               id="name"
               label="Name"
               size="small"
+              maxlength={20}
               variant="outlined"
               value={formValues.name}
               onChange={handleChange}
               name="name"
               fullWidth
               required
+              inputProps={{
+                maxLength: 20,
+              }}
               validators={["required"]}
               errorMessages={["Product name is required"]}
             />

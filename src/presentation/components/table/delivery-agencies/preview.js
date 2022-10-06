@@ -140,7 +140,7 @@ const DeliveryAgencyPreview = () => {
         >
           COMPANY'S DELIVERY AGENTS
         </Typography>
-        <DeliveryAgentsTable items={item?.agents} />
+        <DeliveryAgentsTable items={item?.agents} agencyId={item?.id} />
       </Box>
     </div>
   );

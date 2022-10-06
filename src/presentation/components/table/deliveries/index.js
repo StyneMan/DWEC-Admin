@@ -101,7 +101,7 @@ export default function DeliveriesTable() {
   const { deliveryData } = useSelector((state) => state.delivery);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={deliveryData}
         columns={columns}

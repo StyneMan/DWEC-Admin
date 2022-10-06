@@ -365,13 +365,9 @@ const Drawer2 = (props) => {
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
 
-  // const container =
-  //   props.window !== undefined ? () => window().document.body : undefined;
-
   const handleListItemClick = (to, index) => {
     history.push(to);
     setSelectedIndex(index);
-    // setMobileOpen(!mobileOpen);
   };
 
   const signOut = async () => {

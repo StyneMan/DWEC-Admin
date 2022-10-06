@@ -72,7 +72,7 @@ export default function ProductsTable() {
   const { productsData } = useSelector((state) => state.products);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={productsData}
         columns={columns}

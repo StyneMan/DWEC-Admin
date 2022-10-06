@@ -4,20 +4,20 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-// import EmptyModal from "../modal/EmptyModal";
+
 import MoreVertIcon from "@mui/icons-material/MoreVertRounded";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
-import VisibilityIcon from "@mui/icons-material/VisibilityOutlined";
 import Fade from "@mui/material/Fade";
-// import DataPreview from "../miscellaneous/DataPreview";
+
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { makeStyles } from "@mui/styles";
 import CustomDialog from "../../dashboard/dialogs/custom-dialog";
 import Edit from "@mui/icons-material/Edit";
 import Delete from "@mui/icons-material/Delete";
-import FAQPreview from "./preview";
+import { db, deleteDoc, doc } from "../../../../data/firebase";
+import EditFAQ from "../../../forms/faqs/edit_faq";
 
 const useStyles = makeStyles((theme) => ({
   awardRoot: {
@@ -38,7 +38,6 @@ const ActionButton = ({ selected }) => {
   const classes = useStyles();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [openPreviewModal, setOpenPreviewModal] = React.useState(false);
   const [openEdit, setOpenEdit] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
@@ -49,16 +48,6 @@ const ActionButton = ({ selected }) => {
 
   const handleCloseMoreAction = () => {
     setAnchorEl(null);
-    setOpenEdit(false);
-    setOpenPreviewModal(false);
-  };
-
-  const handlePreview = () => {
-    setOpenPreviewModal(true);
-  };
-
-  const handleEdit = () => {
-    setOpenEdit(true);
   };
 
   const handleDelete = () => {
@@ -67,13 +56,11 @@ const ActionButton = ({ selected }) => {
 
   const performDelete = async () => {
     try {
-      //   const mRef = doc(db, "orders", "" + selected?.row?.id);
-      //   await updateDoc(mRef, {
-      //     status: "Cancelled",
-      //   });
-      //   enqueueSnackbar(`${"Order cancelled successfully!"}`, {
-      //     variant: "success",
-      //   });
+      await deleteDoc(doc(db, "faqs", "" + selected?.row?.id));
+      setOpenDelete(false);
+      enqueueSnackbar(`${"FAQ deleted successfully!"}`, {
+        variant: "success",
+      });
     } catch (error) {
       enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
         variant: "error",
@@ -126,34 +113,27 @@ const ActionButton = ({ selected }) => {
         TransitionComponent={Fade}
         elevation={1}
       >
-        <MenuItem onClick={handlePreview}>
-          <ListItemIcon>
-            <VisibilityIcon fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Preview" />
-        </MenuItem>
-        <CustomDialog
-          title="Preview Data"
-          bodyComponent={
-            <FAQPreview item={selected?.row} setOpen={setOpenPreviewModal} />
-          }
-          open={openPreviewModal}
-          handleClose={handleCloseMoreAction}
-        />
         {userData &&
         (userData?.userType === "Admin" || userData?.userType === "Manager") &&
         selected?.row ? (
           <div>
             <>
-              <MenuItem onClick={handleEdit}>
+              <MenuItem onClick={() => setOpenEdit(true)}>
                 <ListItemIcon>
                   <Edit fontSize="small" color="success" />
                 </ListItemIcon>
                 <ListItemText primary="Edit" />
               </MenuItem>
               <CustomDialog
-                title="Update FAQ"
-                bodyComponent={<div />}
+                title="Update Frequently Asked Question (FAQ)"
+                bodyComponent={
+                  <EditFAQ
+                    setOpen={setOpenEdit}
+                    question={selected?.row?.question}
+                    answer={selected?.row?.answer}
+                    id={selected?.row?.id}
+                  />
+                }
                 open={openEdit}
                 handleClose={() => setOpenEdit(false)}
               />

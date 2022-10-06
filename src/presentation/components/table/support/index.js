@@ -77,7 +77,7 @@ export default function SupportsTable() {
   const { supportsData } = useSelector((state) => state.supports);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={supportsData}
         columns={columns}

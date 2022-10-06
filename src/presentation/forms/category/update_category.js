@@ -113,8 +113,8 @@ const EditCategoryForm = (props) => {
           const mRef = doc(db, "categories", "img_" + id);
           try {
             await updateDoc(mRef, {
-              title: formValues.title,
-              url: downloadURL,
+              name: formValues.title,
+              image: downloadURL,
             });
             setOpen(false);
             setIsLoading(false);
@@ -139,7 +139,7 @@ const EditCategoryForm = (props) => {
       const mRef = doc(db, "categories", "img_" + id);
       try {
         await updateDoc(mRef, {
-          title: formValues.title,
+          name: formValues.title,
         });
         setOpen(false);
         setIsLoading(false);

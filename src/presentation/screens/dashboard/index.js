@@ -92,6 +92,13 @@ import OrdersPreview from "../../components/table/orders/preview";
 import OrderShipping from "./tabs/orders/order_shipping";
 import DeliveryAgencyPreview from "../../components/table/delivery-agencies/preview";
 import AddAgentForm from "../../forms/delivery/add_agent";
+import DeliveryDashboard from "./delivery_dashboard";
+import EditProductForm from "../../forms/products/edit_product";
+import EditDeliveryAgency from "../../forms/delivery/edit_agency";
+import DeliveryAgentPreview from "../../components/table/delivery-agencies/agents/preview";
+import EditAgentForm from "../../forms/delivery/edit_agent";
+import EditSupplierForm from "../../forms/stock/edit_supplier";
+import EditStockForm from "../../forms/stock/edit_stock";
 
 const drawerWidth = 270;
 const useStyles = makeStyles((theme) => ({
@@ -410,7 +417,10 @@ function Dashboard(props) {
 
   React.useLayoutEffect(() => {
     if (userData) {
-      if (userData?.userType !== "POS Agent") {
+      if (
+        userData?.userType !== "POS Agent" &&
+        userData?.userType !== "Delivery Agent"
+      ) {
         setContent(
           <div className={classes.root}>
             <Backdrop style={{ zIndex: 5000 }} open={openSignoutBackDrop}>
@@ -543,6 +553,10 @@ function Dashboard(props) {
                   <Route path="/dashboard/dwec/products/create" exact={true}>
                     <AddProductForm />
                   </Route>
+                  <Route path="/dashboard/dwec/products/:id/edit" exact={true}>
+                    <EditProductForm />
+                  </Route>
+
                   <Route
                     path="/dashboard/dwec/products/bulk-upload"
                     exact={true}
@@ -581,6 +595,14 @@ function Dashboard(props) {
                   >
                     <DeliveryAgencyPreview />
                   </Route>
+
+                  <Route
+                    path="/dashboard/dwec/delivery-agencies/:id/agents/:ke"
+                    exact={true}
+                  >
+                    <DeliveryAgentPreview />
+                  </Route>
+
                   <Route
                     path="/dashboard/dwec/deliveries-agencies/create"
                     exact={true}
@@ -588,10 +610,22 @@ function Dashboard(props) {
                     <AddDeliveryAgency />
                   </Route>
                   <Route
+                    path="/dashboard/dwec/delivery-agencies/:id/edit"
+                    exact={true}
+                  >
+                    <EditDeliveryAgency />
+                  </Route>
+                  <Route
                     path="/dashboard/dwec/deliveries-agencies/:id/agents/create"
                     exact={true}
                   >
                     <AddAgentForm />
+                  </Route>
+                  <Route
+                    path="/dashboard/dwec/deliveries-agencies/:id/agents/:ke/edit"
+                    exact={true}
+                  >
+                    <EditAgentForm />
                   </Route>
 
                   <Route path="/dashboard/dwec/category" exact={true}>
@@ -666,6 +700,9 @@ function Dashboard(props) {
                   <Route path="/dashboard/dwec/stocks/create" exact={true}>
                     <AddStockForm />
                   </Route>
+                  <Route path="/dashboard/dwec/stocks/:id/edit" exact={true}>
+                    <EditStockForm />
+                  </Route>
                   <Route path="/dashboard/dwec/stocks/suppliers" exact={true}>
                     <Suppliers />
                   </Route>
@@ -675,9 +712,31 @@ function Dashboard(props) {
                   >
                     <AddSupplier />
                   </Route>
+                  <Route
+                    path="/dashboard/dwec/stocks/suppliers/:id/edit"
+                    exact={true}
+                  >
+                    <EditSupplierForm />
+                  </Route>
                 </Switch>
               </div>
             </main>
+          </div>
+        );
+      } else if (userData?.userType === "Delivery Agent") {
+        setContent(
+          <div>
+            <Backdrop style={{ zIndex: 5000 }} open={openSignoutBackDrop}>
+              <CircularProgress
+                size={90}
+                thickness={3.0}
+                style={{ color: "white" }}
+              />
+            </Backdrop>
+            <DeliveryDashboard
+              window={window}
+              handleBackdrop={handleBackdrop}
+            />
           </div>
         );
       } else {

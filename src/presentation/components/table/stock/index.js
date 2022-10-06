@@ -28,12 +28,17 @@ export default function StocksTable() {
     {
       field: "supplier",
       headerName: "SUPPLIER",
-      width: 200,
+      width: 195,
     },
     {
       field: "warehouse",
       headerName: "WAREHOUSE",
       width: 165,
+    },
+    {
+      field: "prodName",
+      headerName: "PRODUCT NAME",
+      width: 135,
     },
     {
       field: "product",
@@ -48,18 +53,14 @@ export default function StocksTable() {
     },
     {
       field: "createdAt",
-      headerName: "CREATED ON",
-      width: 110,
+      headerName: "DATE",
+      width: 100,
       valueGetter: (params) =>
         `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
           "en-US"
         )}`,
     },
-    {
-      field: "status",
-      headerName: "STATUS",
-      width: 100,
-    },
+
     {
       field: "id",
       headerName: "ACTIONS",
@@ -73,7 +74,7 @@ export default function StocksTable() {
   const { stocksData } = useSelector((state) => state.stocks);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={stocksData}
         columns={columns}

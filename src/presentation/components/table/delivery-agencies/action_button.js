@@ -16,9 +16,17 @@ import { useSelector } from "react-redux";
 import { makeStyles } from "@mui/styles";
 import CustomDialog from "../../dashboard/dialogs/custom-dialog";
 
-import DoneAll from "@mui/icons-material/DoneAll";
-import { db, doc, updateDoc } from "../../../../data/firebase";
+import {
+  db,
+  deleteDoc,
+  deleteObject,
+  doc,
+  ref,
+  storage,
+} from "../../../../data/firebase";
 import { useHistory } from "react-router-dom";
+import Edit from "@mui/icons-material/Edit";
+import Delete from "@mui/icons-material/Delete";
 
 const useStyles = makeStyles((theme) => ({
   awardRoot: {
@@ -40,50 +48,66 @@ const ActionButton = ({ selected }) => {
   const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [openCompleted, setOpenCompleted] = React.useState(false);
-
+  const [openDelete, setOpenDelete] = React.useState(false);
   const openAction = Boolean(anchorEl);
-  const { enqueueSnackbar } = useSnackbar();
   const { userData } = useSelector((state) => state.user);
   const handleMoreAction = (e) => setAnchorEl(e.currentTarget);
+  const { enqueueSnackbar } = useSnackbar();
 
   const handleCloseMoreAction = () => {
     setAnchorEl(null);
-    setOpenCompleted(false);
   };
 
-  const handleCompleted = () => {
-    // setAnchorEl(null);
-    setOpenCompleted(true);
+  const handleDelete = () => {
+    setOpenDelete(true);
   };
 
-  const performCompleted = async () => {
-    try {
-      const mRef = doc(db, "deliveries", "" + selected?.row?.id);
-      await updateDoc(mRef, {
-        status: "Completed",
+  const performDelete = async () => {
+    const fileRef = ref(storage, "delivery-agency/" + selected?.row?.id);
+
+    deleteObject(fileRef)
+      .then(async () => {
+        // File deleted now delete from firestore,
+        try {
+          await deleteDoc(doc(db, "delivery-agency", "" + selected?.row?.id));
+          setOpenDelete(false);
+          enqueueSnackbar(`Item deleted successfully`, {
+            variant: "success",
+          });
+        } catch (error) {
+          setOpenDelete(false);
+          enqueueSnackbar(
+            `${
+              error?.message || "Not deleted. Check your network connection!"
+            } `,
+            {
+              variant: "error",
+            }
+          );
+        }
+      })
+      .catch((error) => {
+        enqueueSnackbar(
+          `${error?.message || "Check your internet connection"}`,
+          {
+            variant: "error",
+          }
+        );
       });
-      enqueueSnackbar(`${"Delivery status updated successfully!"}`, {
-        variant: "success",
-      });
-    } catch (error) {
-      enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
-        variant: "error",
-      });
-    }
   };
 
-  const renderCompletedConfirm = (
+  const renderDeleteConfirm = (
     <div className={classes.awardRoot}>
       <Typography>
-        {`Are you sure you want to mark delivery as 'completed' ?`}
+        {`Are you sure you want to delete this agency ${selected?.row?.id}?`}
       </Typography>
+      <Typography gutterBottom>Action cannot be undone.</Typography>
       <div className={classes.awardRow}>
         <Button
           className={classes.button}
           variant="contained"
           color="error"
-          onClick={() => setOpenCompleted(false)}
+          onClick={() => setOpenDelete(false)}
         >
           Cancel
         </Button>
@@ -91,7 +115,7 @@ const ActionButton = ({ selected }) => {
           className={classes.button}
           variant="contained"
           color="success"
-          onClick={performCompleted}
+          onClick={performDelete}
         >
           Confirm
         </Button>
@@ -133,37 +157,41 @@ const ActionButton = ({ selected }) => {
           </ListItemIcon>
           <ListItemText primary="Preview" />
         </MenuItem>
-        {/* <CustomDialog
-          title="Preview Data"
-          bodyComponent={
-            <DeliveryPreview
-              item={selected?.row}
-              setOpen={setOpenPreviewModal}
-            />
-          }
-          open={openPreviewModal}
-          handleClose={handleCloseMoreAction}
-        /> */}
-        {((userData && userData?.userType === "Admin") ||
-          (userData && userData?.userType === "Manager")) &&
-        selected?.row ? (
+
+        {userData && userData?.userType === "Admin" && selected?.row ? (
           <div>
-            {selected?.row?.status !== "Completed" && (
-              <>
-                <MenuItem onClick={handleCompleted}>
-                  <ListItemIcon>
-                    <DoneAll fontSize="small" color="success" />
-                  </ListItemIcon>
-                  <ListItemText primary="Completed" />
-                </MenuItem>
-                <CustomDialog
-                  title="Mark As Completed"
-                  bodyComponent={renderCompletedConfirm}
-                  open={openCompleted}
-                  handleClose={() => setOpenCompleted(false)}
-                />
-              </>
-            )}
+            <MenuItem
+              onClick={() =>
+                history.push({
+                  pathname: `/dashboard/dwec/delivery-agencies/:${selected?.row?.id}/edit`,
+                  state: {
+                    id: selected?.row?.id,
+                    name: selected?.row?.name,
+                    email: selected?.row?.email,
+                    address: selected?.row?.address,
+                    phone: selected?.row?.phone,
+                    image: selected?.row?.image,
+                  },
+                })
+              }
+            >
+              <ListItemIcon>
+                <Edit fontSize="small" color="success" />
+              </ListItemIcon>
+              <ListItemText primary="Edit" />
+            </MenuItem>
+            <MenuItem onClick={handleDelete}>
+              <ListItemIcon>
+                <Delete fontSize="small" color="error" />
+              </ListItemIcon>
+              <ListItemText primary="Delete" />
+            </MenuItem>
+            <CustomDialog
+              title="Delete Agency"
+              bodyComponent={renderDeleteConfirm}
+              open={openDelete}
+              handleClose={() => setOpenDelete(false)}
+            />
           </div>
         ) : null}
       </Menu>

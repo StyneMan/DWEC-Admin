@@ -11,8 +11,9 @@ import {
   db,
   ref,
   storage,
-  setDoc,
   doc,
+  updateDoc,
+  deleteObject,
   uploadBytesResumable,
   getDownloadURL,
 } from "../../../data/firebase";
@@ -22,20 +23,20 @@ import Box from "@mui/system/Box";
 import Typography from "@mui/material/Typography";
 import placeholder from "../../../assets/images/placeholder.png";
 import NumberFormat from "react-number-format";
-import QuillEditor from "../../components/misc/richtext/quill";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import ArrowBackIosNew from "@mui/icons-material/ArrowBackIosNew";
 import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import { useSelector } from "react-redux";
 import MenuItem from "@mui/material/MenuItem";
+import QuillEditable from "../../components/misc/richtext/edit_quill";
 
 const useStyles = makeStyles((theme) => ({
   image: {
     margin: "0px auto 15px auto",
-    width: 120,
-    height: 100,
+    width: 144,
+    height: 144,
   },
   mb: {
     marginBottom: 10,
@@ -74,20 +75,24 @@ const CircularProgressWithLabel = (props) => {
 
 const EditProductForm = () => {
   const classes = useStyles();
+  const location = useLocation();
   const history = useHistory();
 
+  let { id, name, category, desc, amnt, quantity, img } = location.state;
+
   const [formValues, setFormValues] = React.useState({
-    name: "",
-    category: "",
-    quantity: 1,
+    name: name,
+    image: "",
+    category: category,
+    quantity: quantity,
   });
   const [file, setFile] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [progress, setProgress] = React.useState(0);
-  const [previewImage, setPreviewImage] = React.useState(placeholder);
-  const [price, setPrice] = React.useState(0);
-  const [description, setDescription] = React.useState(null);
+  const [previewImage, setPreviewImage] = React.useState("");
+  const [price, setPrice] = React.useState(amnt);
+  const [description, setDescription] = React.useState(desc);
   const { enqueueSnackbar } = useSnackbar();
 
   const { categoryData } = useSelector((state) => state.category);
@@ -113,10 +118,10 @@ const EditProductForm = () => {
     }
   };
 
-  const createProduct = (e) => {
+  const uploadNew = (e) => {
     setIsUploading(true);
     const timeNow = new Date();
-    //First upload images to firebase storage then save to firestore
+
     let storageRef = ref(storage, "products/" + timeNow.getTime());
     let uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -130,45 +135,79 @@ const EditProductForm = () => {
       (error) => {
         setIsUploading(false);
         console.log(error);
-        enqueueSnackbar(
-          `${error?.message || "Check your internet connection"}`,
-          { variant: "error" }
-        );
+        enqueueSnackbar(`${error.message}`, { variant: "error" });
       },
       () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          setIsUploading(false);
-          setIsLoading(true);
-          setDoc(doc(db, "products", `${timeNow.getTime()}`), {
-            id: "" + timeNow.getTime(),
-            name: formValues.name,
-            image: downloadURL,
-            category: formValues.category,
-            description: description,
-            price: price,
-            quantity: formValues.quantity,
-            createdAt: timeNow,
-            updatedAt: timeNow,
-          })
-            .then((res) => {
-              setIsLoading(false);
-              enqueueSnackbar(`New product added successfully`, {
-                variant: "success",
-              });
-              history.goBack();
-            })
-            .catch((error) => {
-              setIsLoading(false);
-              enqueueSnackbar(
-                `${error?.message || "Check your internet connection"}`,
-                {
-                  variant: "error",
-                }
-              );
+        setIsUploading(false);
+        setIsLoading(true);
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
+          const mRef = doc(db, "products", `${id}`);
+          try {
+            await updateDoc(mRef, {
+              name: formValues.name,
+              image: downloadURL,
+              category: formValues.category,
+              description: description,
+              price: parseInt(`${price}`),
+              quantity: formValues.quantity,
             });
+            setIsLoading(false);
+            enqueueSnackbar(`Product updated successfully`, {
+              variant: "success",
+            });
+            history.goBack();
+          } catch (error) {
+            setIsLoading(false);
+            enqueueSnackbar(`Error updating product`, {
+              variant: "error",
+            });
+          }
         });
       }
     );
+  };
+
+  const updateProduct = async (e) => {
+    setIsLoading(true);
+
+    if (!previewImage) {
+      // console.log("ID: ", id);
+      const mRef = doc(db, "products", "" + id);
+      try {
+        await updateDoc(mRef, {
+          name: formValues.name,
+          category: formValues.category,
+          description: description,
+          price: parseInt(`${price}`),
+          quantity: formValues.quantity,
+        });
+
+        setIsLoading(false);
+        enqueueSnackbar(`Product updated successfully`, {
+          variant: "success",
+        });
+        history.goBack();
+      } catch (error) {
+        setIsLoading(false);
+        enqueueSnackbar(`Error updating product`, {
+          variant: "error",
+        });
+      }
+    } else {
+      const fileRef = ref(storage, "products/" + id);
+
+      deleteObject(fileRef)
+        .then(() => {
+          // File deleted now upload new file,
+          //get download url and save to firestore
+          setIsLoading(false);
+          uploadNew();
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          console.log("ErR: ", error);
+        });
+    }
   };
 
   return (
@@ -185,7 +224,7 @@ const EditProductForm = () => {
           <div />
         )}
       </Backdrop>
-      <ValidatorForm onSubmit={createProduct}>
+      <ValidatorForm onSubmit={updateProduct}>
         <Box
           display="flex"
           flexDirection="row"
@@ -199,7 +238,15 @@ const EditProductForm = () => {
             Back
           </Button>
         </Box>
-        <Grid container spacing={1} padding={1}>
+        <Grid
+          container
+          spacing={1}
+          padding={1}
+          display="flex"
+          flexDirection="row"
+          justifyContent="space-between"
+          alignItems="center"
+        >
           <Grid item xs={12} sm={6} md={6}>
             <TextValidator
               id="image"
@@ -212,21 +259,17 @@ const EditProductForm = () => {
               disabled={isLoading}
               accept=".png, .jpg, .jpeg"
               onChange={handleChange}
-              validators={["required"]}
-              errorMessages={["Image is required"]}
               helperText="Featured image"
             />
           </Grid>
 
           <Grid item xs={12} sm={6} md={6}>
-            {previewImage && (
-              <Avatar
-                variant="rounded"
-                alt="Passport"
-                src={previewImage}
-                className={classes.image}
-              />
-            )}
+            <Avatar
+              variant="rounded"
+              alt="Passport"
+              src={previewImage ? previewImage : img}
+              className={classes.image}
+            />
           </Grid>
         </Grid>
 
@@ -316,10 +359,7 @@ const EditProductForm = () => {
 
         <br />
 
-        <QuillEditor
-          setValue={setDescription}
-          placeholder={"Type product description here..."}
-        />
+        <QuillEditable value={description} setValue={setDescription} />
         <br />
 
         <Button
@@ -328,7 +368,7 @@ const EditProductForm = () => {
           disabled={isLoading || isUploading}
           fullWidth
         >
-          Save
+          Update Now
         </Button>
       </ValidatorForm>
     </div>

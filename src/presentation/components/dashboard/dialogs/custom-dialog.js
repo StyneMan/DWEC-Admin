@@ -9,7 +9,7 @@ function getModalStyle() {
   return {
     //top: `${top}%`,
     margin: "auto",
-    minWidth: 200,
+    minWidth: 100,
     //left: `${left}%`,
     //transform: `translate(-${top}%, -${left}%)`,
   };
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[5],
     borderRadius: 16,
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
   },
 }));
 

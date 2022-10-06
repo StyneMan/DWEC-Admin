@@ -91,7 +91,7 @@ export default function SalesTable() {
   const { salesData } = useSelector((state) => state.sales);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={salesData}
         columns={columns}

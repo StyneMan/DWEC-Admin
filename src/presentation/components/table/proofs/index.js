@@ -75,7 +75,7 @@ export default function ProofsTable() {
   const { proofsData } = useSelector((state) => state.proofs);
 
   return (
-    <div style={{ height: 500, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={proofsData}
         columns={columns}

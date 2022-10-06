@@ -10,8 +10,11 @@ import Typography from "@mui/material/Typography";
 import LoginForm from "../../forms/login";
 import pattern from "../../../assets/images/pattern.svg";
 import logo from "../../../assets/images/splash_logo.png";
+import { useMediaQuery, useTheme } from "@mui/material";
 
 const Login = () => {
+  const theme = useTheme();
+  const xs = useMediaQuery(theme.breakpoints.only("xs"));
   return (
     <Grid
       container
@@ -46,41 +49,43 @@ const Login = () => {
           <LoginForm />
         </Box>
       </Grid>
-      <Grid
-        item
-        xs={false}
-        sm={4}
-        md={6}
-        sx={{
-          height: "100vh",
-          backgroundColor: "primary.main",
-        }}
-      >
-        <div
-          style={{
+      {!xs && (
+        <Grid
+          item
+          xs={12}
+          sm={4}
+          md={6}
+          sx={{
             height: "100vh",
-            backgroundImage: "url(" + pattern + ")",
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            zIndex: 1000,
+            backgroundColor: "primary.main",
           }}
         >
-          <Box
-            component="div"
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              my: "auto",
-              height: "100%",
+          <div
+            style={{
+              height: "100vh",
+              backgroundImage: "url(" + pattern + ")",
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              zIndex: 1000,
             }}
           >
-            <img src={logo} alt="img" width={256} />
-          </Box>
-        </div>
-      </Grid>
+            <Box
+              component="div"
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                my: "auto",
+                height: "100%",
+              }}
+            >
+              <img src={logo} alt="img" width={256} />
+            </Box>
+          </div>
+        </Grid>
+      )}
     </Grid>
   );
 };

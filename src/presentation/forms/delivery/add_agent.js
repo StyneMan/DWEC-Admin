@@ -28,7 +28,7 @@ import { useHistory, useLocation } from "react-router-dom";
 import ArrowBackIosNew from "@mui/icons-material/ArrowBackIosNew";
 import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
-import { useSelector } from "react-redux";
+// import { useSelector } from "react-redux";
 import MenuItem from "@mui/material/MenuItem";
 import { createUser } from "../../../domain/service";
 import Visibility from "@mui/icons-material/Visibility";
@@ -128,9 +128,8 @@ const AddAgentForm = () => {
 
   const createAgent = async (userId) => {
     setIsUploading(true);
-    const timeNow = new Date();
     //First upload images to firebase storage then save to firestore
-    let storageRef = ref(storage, "delivery_agents/" + timeNow.getTime());
+    let storageRef = ref(storage, "delivery_agents/" + userId);
     let uploadTask = uploadBytesResumable(storageRef, file);
 
     await uploadTask.on(
@@ -142,7 +141,7 @@ const AddAgentForm = () => {
       },
       (error) => {
         setIsUploading(false);
-        console.log(error);
+        // console.log(error);
         enqueueSnackbar(
           `${error?.message || "Check your internet connection"}`,
           { variant: "error" }
@@ -187,11 +186,11 @@ const AddAgentForm = () => {
   };
 
   const createAdmin = (e) => {
-    setIsLoading(true);
     const timeNow = new Date();
     createUser(formValues.email, formValues.password)
       .then(async (resp) => {
         try {
+          setIsLoading(true);
           await createAgent(resp?.user?.uid);
           await setDoc(doc(db, "users", resp?.user?.uid), {
             id: resp?.user?.uid,
@@ -204,26 +203,18 @@ const AddAgentForm = () => {
             isBlocked: false,
             createdAt: timeNow,
             updatedAt: timeNow,
-          })
-            .then(async (result) => {
+          }).then(async (result) => {
+            setIsLoading(false);
+            const docRef = doc(db, "users", resp?.user?.uid);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              enqueueSnackbar(`New delivery agent created successfully`, {
+                variant: "success",
+              });
               setIsLoading(false);
-              const docRef = doc(db, "users", resp?.user?.uid);
-              const docSnap = await getDoc(docRef);
-              if (docSnap.exists()) {
-                enqueueSnackbar(`New delivery agent created successfully`, {
-                  variant: "success",
-                });
-              }
-            })
-            .catch((err) => {
-              setIsLoading(false);
-              enqueueSnackbar(
-                `${err?.message || "Check your internet connection"}`,
-                {
-                  variant: "error",
-                }
-              );
-            });
+              history.goBack();
+            }
+          });
         } catch (error) {
           setIsLoading(false);
           enqueueSnackbar(

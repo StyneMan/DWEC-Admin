@@ -271,7 +271,13 @@ const Profile = () => {
           <div />
         )}
       </Backdrop>
-      <Typography variant="h6" fontWeight="600" gutterBottom={true}>
+      <Typography
+        padding={2}
+        textAlign={(xsmall || small) && "center"}
+        variant="h6"
+        fontWeight="600"
+        gutterBottom={true}
+      >
         Personal Account Information
       </Typography>
       <div
@@ -280,13 +286,13 @@ const Profile = () => {
           flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          height: "70vh",
+          height: "75vh",
         }}
       >
         <Grid
           container
           spacing={4}
-          justifyContent="space-between"
+          justifyContent={xsmall || small ? "center" : "space-between"}
           alignItems={"center"}
         >
           <Grid item sm={6} md={6}>

@@ -6,49 +6,7 @@ import Grid from "@mui/material/Grid";
 import { Container, Toolbar } from "@mui/material";
 import curve from "../../../../../assets/images/signup_top.png";
 import AdsSlider from "./components/ads_slider";
-
-// const useStyles = makeStyles((theme) => ({
-//   root: {
-//     display: "flex",
-//     height: "100vh",
-//   },
-//   button: {
-//     textTransform: "none",
-//     fontSize: 11,
-//   },
-//   row: {
-//     display: "flex",
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     alignItems: "center",
-//   },
-// }));
-
-// const CustomToolbar = () => {
-//   return (
-//     <GridToolbarContainer
-//       color="secondary"
-//       style={{
-//         display: "flex",
-//         padding: 16,
-//       }}
-//     >
-//       <Paper style={{ padding: 6, borderRadius: 10 }}>
-//         <GridHeader />
-//       </Paper>
-//       <Paper
-//         style={{
-//           alignSelf: "flex-end",
-//           padding: 6,
-//           marginLeft: "auto",
-//           borderRadius: 10,
-//         }}
-//       >
-//         <GridToolbarExport />
-//       </Paper>
-//     </GridToolbarContainer>
-//   );
-// };
+import { useSelector } from "react-redux";
 
 const ItemCard = (props) => {
   let { title, value } = props;
@@ -88,21 +46,25 @@ const ItemCard = (props) => {
 };
 
 const HomePage = () => {
+  const { salesData } = useSelector((state) => state.sales);
+  const { ordersData } = useSelector((state) => state.orders);
+  const { productsData } = useSelector((state) => state.products);
+
   return (
     <div>
       <Container sx={{ paddingBottom: 5 }}>
         <Grid container spacing={3}>
           <Grid item xs={6} sm={4} md={3}>
-            <ItemCard title="Orders" value={3000} />
+            <ItemCard title="Orders" value={ordersData?.length} />
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <ItemCard title="Products" value={10000} />
+            <ItemCard title="Products" value={productsData?.length} />
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
             <ItemCard title="Deliveries" value={700} />
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <ItemCard title="Sales" value={"1, 800, 000"} />
+            <ItemCard title="Sales" value={salesData?.length} />
           </Grid>
         </Grid>
         <Toolbar />

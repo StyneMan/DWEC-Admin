@@ -48,7 +48,7 @@ export default function FAQsTable() {
   const { faqData } = useSelector((state) => state.cms);
 
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={faqData}
         columns={columns}

@@ -18,6 +18,16 @@ import CustomDialog from "../../dashboard/dialogs/custom-dialog";
 import Edit from "@mui/icons-material/Edit";
 import Delete from "@mui/icons-material/Delete";
 import ProductPreview from "./preview";
+import { useHistory } from "react-router-dom";
+
+import {
+  ref,
+  deleteDoc,
+  deleteObject,
+  doc,
+  db,
+  storage,
+} from "../../../../data/firebase/";
 
 const useStyles = makeStyles((theme) => ({
   awardRoot: {
@@ -36,10 +46,10 @@ const useStyles = makeStyles((theme) => ({
 
 const ActionButton = ({ selected }) => {
   const classes = useStyles();
+  const history = useHistory();
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openPreviewModal, setOpenPreviewModal] = React.useState(false);
-  const [openEdit, setOpenEdit] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
 
   const openAction = Boolean(anchorEl);
@@ -49,15 +59,11 @@ const ActionButton = ({ selected }) => {
 
   const handleCloseMoreAction = () => {
     setAnchorEl(null);
-    setOpenEdit(false);
+    // setOpenEdit(false);
     setOpenPreviewModal(false);
   };
   const handlePreview = () => {
     setOpenPreviewModal(true);
-  };
-
-  const handleEdit = () => {
-    setOpenEdit(true);
   };
 
   const handleDelete = () => {
@@ -65,19 +71,38 @@ const ActionButton = ({ selected }) => {
   };
 
   const performDelete = async () => {
-    try {
-      //   const mRef = doc(db, "orders", "" + selected?.row?.id);
-      //   await updateDoc(mRef, {
-      //     status: "Cancelled",
-      //   });
-      //   enqueueSnackbar(`${"Order cancelled successfully!"}`, {
-      //     variant: "success",
-      //   });
-    } catch (error) {
-      enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
-        variant: "error",
+    const fileRef = ref(storage, "products/" + selected?.row?.id);
+
+    deleteObject(fileRef)
+      .then(async () => {
+        // File deleted now delete from firestore,
+        try {
+          await deleteDoc(doc(db, "products", "" + selected?.row?.id));
+          setOpenDelete(false);
+          enqueueSnackbar(`Item deleted successfully`, {
+            variant: "success",
+          });
+        } catch (error) {
+          setOpenDelete(false);
+          enqueueSnackbar(
+            `${
+              error?.message || "Not deleted. Check your network connection!"
+            } `,
+            {
+              variant: "error",
+            }
+          );
+        }
+      })
+      .catch((error) => {
+        // console.log("ErR: ", error);
+        enqueueSnackbar(
+          `${error?.message || "Check your internet connection"}`,
+          {
+            variant: "error",
+          }
+        );
       });
-    }
   };
 
   const renderDeleteConfirm = (
@@ -145,18 +170,27 @@ const ActionButton = ({ selected }) => {
         {userData && userData?.userType === "Admin" && selected?.row ? (
           <div>
             <>
-              <MenuItem onClick={handleEdit}>
+              <MenuItem
+                onClick={() =>
+                  history.push({
+                    pathname: `/dashboard/dwec/products/:${selected?.row?.id}/edit`,
+                    state: {
+                      id: selected?.row?.id,
+                      name: selected?.row?.name,
+                      category: selected?.row?.category,
+                      quantity: selected?.row?.quantity,
+                      desc: selected?.row?.description,
+                      amnt: selected?.row?.price,
+                      img: selected?.row?.image,
+                    },
+                  })
+                }
+              >
                 <ListItemIcon>
                   <Edit fontSize="small" color="success" />
                 </ListItemIcon>
                 <ListItemText primary="Edit" />
               </MenuItem>
-              <CustomDialog
-                title="Update Product"
-                bodyComponent={<div />}
-                open={openEdit}
-                handleClose={() => setOpenEdit(false)}
-              />
             </>
             <>
               <MenuItem onClick={handleDelete}>

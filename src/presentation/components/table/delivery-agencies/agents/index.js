@@ -24,13 +24,13 @@ function CustomToolbar() {
 }
 
 export default function DeliveryAgentsTable(props) {
-  let { items } = props;
+  let { items, agencyId } = props;
 
   const columns = [
     {
       field: "name",
       headerName: "AGENT'S NAME",
-      width: 135,
+      width: 132,
       valueGetter: (params) => `${params.row.firstname} ${params.row.lastname}`,
     },
     {
@@ -44,12 +44,12 @@ export default function DeliveryAgentsTable(props) {
     {
       field: "email",
       headerName: "EMAIL ADDRESS",
-      width: 144,
+      width: 140,
     },
     {
       field: "address",
       headerName: "ADDRESS",
-      width: 200,
+      width: 175,
       renderCell: (params) => {
         return <Typography>{params?.row?.address}</Typography>;
       },
@@ -57,22 +57,22 @@ export default function DeliveryAgentsTable(props) {
     {
       field: "phone",
       headerName: "PHONE",
-      width: 118,
+      width: 115,
     },
     {
       field: "idcode",
       headerName: "BVN/NIN",
-      width: 110,
+      width: 100,
     },
     {
       field: "gender",
       headerName: "GENDER",
-      width: 83,
+      width: 80,
     },
     {
       field: "createdAt",
       headerName: "ADDED ON",
-      width: 96,
+      width: 94,
       valueGetter: (params) =>
         `${new Date(params.row?.createdAt?.seconds * 1000).toLocaleDateString(
           "en-US"
@@ -83,13 +83,13 @@ export default function DeliveryAgentsTable(props) {
       headerName: "ACTIONS",
       width: 90,
       renderCell: (params) => {
-        return <ActionButton selected={params} />;
+        return <ActionButton selected={params} agencyId={agencyId} />;
       },
     },
   ];
 
   return (
-    <div style={{ height: 500, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={items}
         columns={columns}

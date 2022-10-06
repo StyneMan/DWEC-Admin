@@ -102,7 +102,7 @@ export default function AdminsTable() {
   }, []);
 
   return (
-    <div style={{ height: 500, width: "100%" }}>
+    <div style={{ height: 512, width: "100%" }}>
       <DataGrid
         rows={usersList}
         columns={columns}

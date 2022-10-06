@@ -118,7 +118,7 @@ const CategoryForm = (props) => {
         setIsLoading(true);
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setDoc(doc(db, "categories", `${timeNow.getTime()}`), {
-            id: timeNow.getTime(),
+            id: timeNow.getTime().toString(),
             name: formValues.title,
             image: downloadURL,
           })

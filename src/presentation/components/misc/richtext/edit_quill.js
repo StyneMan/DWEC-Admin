@@ -76,7 +76,7 @@ class QuillEditable extends React.Component {
   handleChange = (html) => {
     this.setState({ editorHtml: html });
     this.props.setValue(html);
-    console.log("ASDE", this.state.editorHtml);
+    // console.log("ASDE", this.state.editorHtml);
   };
 
   static modules = {

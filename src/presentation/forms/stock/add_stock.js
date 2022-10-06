@@ -29,11 +29,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const AddStockForm = (props) => {
+const AddStockForm = () => {
   const classes = useStyles();
   const history = useHistory();
   const [formValues, setFormValues] = React.useState({
     product: "",
+    prodName: "",
     supplier: "",
     warehouse: "",
     quantity: "",
@@ -60,6 +61,12 @@ const AddStockForm = (props) => {
       var tota = value * unitPrice;
       setTotal(tota);
     }
+    if (name === "product") {
+      if (productsData) {
+        let data = productsData?.filter((elem) => elem.id === value);
+        setFormValues((prevData) => ({ ...prevData, prodName: data[0]?.name }));
+      }
+    }
   };
 
   const createStock = (e) => {
@@ -68,13 +75,14 @@ const AddStockForm = (props) => {
     setDoc(doc(db, "stocks", `${timeNow.getTime()}`), {
       id: timeNow.getTime(),
       product: formValues.product,
+      productName: formValues.prodName,
       supplier: formValues.supplier,
       warehouse: formValues.warehouse,
-      unitPrice: unitPrice,
-      cost: total,
       createdAt: timeNow,
       updatedAt: timeNow,
-      quantity: formValues.quantity,
+      quantity: parseInt(`${formValues.quantity}`),
+      unitPrice: parseInt(`${unitPrice}`),
+      cost: parseInt(`${total}`),
       summary: summaryBody,
     })
       .then(async (res) => {
@@ -84,8 +92,6 @@ const AddStockForm = (props) => {
           await updateDoc(mRef, {
             quantity: increment(formValues.quantity),
           });
-
-          //Send email to customer here informinhg them that order is placed for delivery.
 
           setIsLoading(false);
           enqueueSnackbar(`Stock added successfully`, {
