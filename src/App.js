@@ -10,7 +10,15 @@ import {
   PrivateRouteSignup,
 } from "./domain/helper/private-routes";
 import React from "react";
-import { auth, collection, query, onSnapshot, doc, db } from "./data/firebase";
+import {
+  auth,
+  collection,
+  query,
+  onSnapshot,
+  doc,
+  db,
+  orderBy,
+} from "./data/firebase";
 import { useDispatch } from "react-redux";
 import { setUserData } from "./data/store/slice/user";
 import {
@@ -157,7 +165,7 @@ function App() {
         dispatch(setPOSTransData(data));
       });
 
-      const productsQuery = query(collection(db, "products"));
+      const productsQuery = query(collection(db, "products"), orderBy("name"));
       onSnapshot(productsQuery, (querySnapshot) => {
         const products = [];
         querySnapshot.forEach((doc) => {
@@ -175,7 +183,10 @@ function App() {
         dispatch(setSuppliersData(suppliers));
       });
 
-      const stocksQuery = query(collection(db, "stocks"));
+      const stocksQuery = query(
+        collection(db, "stocks"),
+        orderBy("createdAt", "desc")
+      );
       onSnapshot(stocksQuery, (querySnapshot) => {
         const stocks = [];
         querySnapshot.forEach((doc) => {

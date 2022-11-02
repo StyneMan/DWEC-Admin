@@ -6,7 +6,7 @@ import {
   TextValidator,
   SelectValidator,
 } from "react-material-ui-form-validator";
-import { db, doc, onSnapshot } from "../../../data/firebase";
+import { db, doc, onSnapshot, auth } from "../../../data/firebase";
 
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -54,9 +54,27 @@ const LoginForm = () => {
     try {
       let resp = await signInUser(formValues.email, formValues.password);
       setIsLoading(false);
-      onSnapshot(doc(db, "users", resp.user.uid), (doc) => {
-        dispatch(setUserData(doc.data()));
-        history.push("/dashboard/dwec");
+      onSnapshot(doc(db, "users", resp.user.uid), async (doc) => {
+        //Checkk the user type here before proceeding
+        if (doc.data()?.userType === "Public") {
+          await auth.signOut();
+          dispatch(setUserData(null));
+          enqueueSnackbar(`${"Check out our app or visit our website!"}`, {
+            variant: "info",
+          });
+        } else if (doc.data()?.userType === "Delivery Agent") {
+          await auth.signOut();
+          dispatch(setUserData(null));
+          enqueueSnackbar(`${"Use the delivery web app!"}`, {
+            variant: "info",
+          });
+        } else {
+          dispatch(setUserData(doc.data()));
+          history.push("/dashboard/dwec");
+        }
+
+        // console.log("DATA::", doc.data());
+        // console.log("FIELD DATA::", doc.data()?.userType);
       });
     } catch (error) {
       setIsLoading(false);

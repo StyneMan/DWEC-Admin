@@ -28,13 +28,13 @@ export default function ProductsTable() {
     {
       field: "_id",
       headerName: "ID",
-      width: 200,
+      minWidth: 200,
       valueGetter: (params) => `${params?.row?.id}`,
     },
     {
       field: "image",
       headerName: "Image",
-      width: 75,
+      minWidth: 75,
       renderCell: (params) => (
         <img alt="Profile" src={params?.row?.image} width="56%" />
       ),
@@ -42,27 +42,27 @@ export default function ProductsTable() {
     {
       field: "name",
       headerName: "NAME",
-      width: 165,
+      minWidth: 165,
     },
     {
       field: "category",
       headerName: "CATEGORY",
-      width: 175,
+      minWidth: 175,
     },
     {
       field: "price",
       headerName: "UNIT PRICE",
-      width: 175,
+      minWidth: 175,
     },
     {
       field: "quantity",
       headerName: "STOCK",
-      width: 100,
+      minWidth: 100,
     },
     {
       field: "id",
       headerName: "ACTIONS",
-      width: 90,
+      minWidth: 90,
       renderCell: (params) => {
         return <ActionButton selected={params} />;
       },

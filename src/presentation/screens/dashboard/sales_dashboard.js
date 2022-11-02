@@ -246,6 +246,13 @@ const Receipt = (props) => {
   const componentRef = useRef();
 
   React.useEffect(() => {
+    userData?.sales?.forEach((elem) => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      dispatch(setInitValue((initValue += elem?.cost)));
+    });
+  }, []);
+
+  React.useEffect(() => {
     if (triggerPOS) {
       userData?.sales?.forEach((elem) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps

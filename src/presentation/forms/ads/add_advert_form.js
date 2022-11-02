@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const places = ["Home page", "Directories"];
+const places = ["Home page"];
 
 const CircularProgressWithLabel = (props) => {
   return (

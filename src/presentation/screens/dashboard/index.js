@@ -49,7 +49,14 @@ import {
   setFAQData,
   setPrivacyData,
 } from "../../../data/store/slice/cms";
-import { collection, db, doc, query, onSnapshot } from "../../../data/firebase";
+import {
+  collection,
+  db,
+  doc,
+  query,
+  onSnapshot,
+  orderBy,
+} from "../../../data/firebase";
 import { setCategoryData } from "../../../data/store/slice/category";
 import {
   setDeliveryAgenciesData,
@@ -331,7 +338,7 @@ function Dashboard(props) {
         dispatch(setOrdersData(orders));
       });
 
-      const productsQuery = query(collection(db, "products"));
+      const productsQuery = query(collection(db, "products"), orderBy("name"));
       onSnapshot(productsQuery, (querySnapshot) => {
         const products = [];
         querySnapshot.forEach((doc) => {
@@ -358,7 +365,10 @@ function Dashboard(props) {
         dispatch(setSuppliersData(suppliers));
       });
 
-      const stocksQuery = query(collection(db, "stocks"));
+      const stocksQuery = query(
+        collection(db, "stocks"),
+        orderBy("createdAt", "desc")
+      );
       onSnapshot(stocksQuery, (querySnapshot) => {
         const stocks = [];
         querySnapshot.forEach((doc) => {

@@ -7,6 +7,7 @@ import { Container, Toolbar } from "@mui/material";
 import curve from "../../../../../assets/images/signup_top.png";
 import AdsSlider from "./components/ads_slider";
 import { useSelector } from "react-redux";
+import LowStock from "./components/low_stock";
 
 const ItemCard = (props) => {
   let { title, value } = props;
@@ -48,6 +49,7 @@ const ItemCard = (props) => {
 const HomePage = () => {
   const { salesData } = useSelector((state) => state.sales);
   const { ordersData } = useSelector((state) => state.orders);
+  const { deliveryData } = useSelector((state) => state.delivery);
   const { productsData } = useSelector((state) => state.products);
 
   return (
@@ -61,7 +63,7 @@ const HomePage = () => {
             <ItemCard title="Products" value={productsData?.length} />
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
-            <ItemCard title="Deliveries" value={700} />
+            <ItemCard title="Deliveries" value={deliveryData?.length} />
           </Grid>
           <Grid item xs={6} sm={4} md={3}>
             <ItemCard title="Sales" value={salesData?.length} />
@@ -69,7 +71,9 @@ const HomePage = () => {
         </Grid>
         <Toolbar />
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={7}></Grid>
+          <Grid item xs={12} sm={6} md={7}>
+            <LowStock />
+          </Grid>
           <Grid item xs={12} sm={6} md={5}>
             {/* Ads slider here */}
             <AdsSlider />

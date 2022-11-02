@@ -28,28 +28,37 @@ export default function StocksTable() {
     {
       field: "supplier",
       headerName: "SUPPLIER",
-      width: 195,
+      width: 165,
     },
     {
       field: "warehouse",
       headerName: "WAREHOUSE",
-      width: 165,
+      width: 150,
     },
     {
-      field: "prodName",
+      field: `${"productName" ?? "prodName"}`,
       headerName: "PRODUCT NAME",
-      width: 135,
+      width: 145,
     },
     {
       field: "product",
       headerName: "PRODUCT ID",
-      width: 175,
+      width: 150,
     },
-
+    {
+      field: "unitPrice",
+      headerName: "PURCHASE PRICE",
+      width: 150,
+    },
     {
       field: "quantity",
       headerName: "QUANTITY",
       width: 100,
+    },
+    {
+      field: "cost",
+      headerName: "TOTAL COST",
+      width: 128,
     },
     {
       field: "createdAt",

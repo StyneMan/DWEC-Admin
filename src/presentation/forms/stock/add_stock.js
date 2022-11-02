@@ -263,9 +263,9 @@ const AddStockForm = () => {
               prefix={"₦"}
               fullWidth
               size="small"
-              placeholder="Enter unit price"
+              placeholder="Enter purchase price"
               variant="outlined"
-              label="Price"
+              label="Purchase Price"
               required
             />
           </Grid>
