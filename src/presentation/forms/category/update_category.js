@@ -59,10 +59,11 @@ const CircularProgressWithLabel = (props) => {
 
 const EditCategoryForm = (props) => {
   const classes = useStyles();
-  let { setOpen, img, name, id } = props;
+  let { setOpen, img, name, id, color } = props;
   const [formValues, setFormValues] = React.useState({
-    title: " ",
+    title: name,
     image: "",
+    color: color,
   });
   const [file, setFile] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -114,6 +115,7 @@ const EditCategoryForm = (props) => {
           try {
             await updateDoc(mRef, {
               name: formValues.title,
+              color: formValues.color,
               image: downloadURL,
             });
             setOpen(false);
@@ -136,25 +138,28 @@ const EditCategoryForm = (props) => {
     setIsLoading(true);
     if (!previewPassport) {
       console.log("ID: ", id);
-      const mRef = doc(db, "categories", "img_" + id);
+      const mRef = doc(db, "categories", "" + id);
       try {
         await updateDoc(mRef, {
           name: formValues.title,
+          color: formValues.color,
         });
         setOpen(false);
         setIsLoading(false);
-        enqueueSnackbar(`Category name updated successfully`, {
+        enqueueSnackbar(`Category updated successfully`, {
           variant: "success",
         });
       } catch (error) {
         setIsLoading(false);
-        enqueueSnackbar(`Error updating name`, {
-          variant: "error",
-        });
+        enqueueSnackbar(
+          `${error.message || "Check your internet connection"}`,
+          {
+            variant: "error",
+          }
+        );
       }
     } else {
-      setFormValues({ title: formValues.title ? formValues.title : name });
-      const fileRef = ref(storage, "categories/img_" + id);
+      const fileRef = ref(storage, "categories/" + id);
 
       deleteObject(fileRef)
         .then(() => {
@@ -190,13 +195,7 @@ const EditCategoryForm = (props) => {
           label="Category name"
           size="small"
           variant="outlined"
-          value={
-            formValues.title === " "
-              ? name
-              : !formValues.title
-              ? ""
-              : formValues.title
-          }
+          value={formValues.title}
           onChange={handleChange}
           // onBlur={handleBlur}
           name="title"
@@ -204,6 +203,23 @@ const EditCategoryForm = (props) => {
           validators={["required"]}
           errorMessages={["Category name is required"]}
         />
+        <br />
+
+        <TextValidator
+          id="color"
+          label="Color code"
+          size="small"
+          variant="outlined"
+          value={formValues.color}
+          onChange={handleChange}
+          // onBlur={handleBlur}
+          placeholder="e.g #FFFFFF"
+          name="color"
+          fullWidth
+          validators={["required"]}
+          errorMessages={["Hex color code is required"]}
+        />
+
         <br />
         <TextValidator
           id="image"

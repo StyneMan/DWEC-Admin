@@ -17,7 +17,6 @@ import {
   storage,
 } from "../../../../../../data/firebase";
 import Delete from "@mui/icons-material/Delete";
-import Edit from "@mui/icons-material/Edit";
 import ReactQuill from "react-quill"; // ES6
 
 const useStyles = makeStyles((theme) => ({

@@ -58,29 +58,36 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CategoryItem = (props) => {
-  const { image, name, id } = props;
+  const { image, color, name, id } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
   const deleteCategory = () => {
-    const fileRef = ref(storage, "category/" + id);
+    const fileRef = ref(storage, "categories/" + id);
 
     deleteObject(fileRef)
       .then(async () => {
         // File deleted now delete from firestore,
         try {
-          await deleteDoc(doc(db, "category", "" + id));
+          await deleteDoc(doc(db, "categories", "" + id));
           setOpenDelete(false);
           enqueueSnackbar(`Item deleted successfully`, { variant: "success" });
         } catch (error) {
           setOpenDelete(false);
-          enqueueSnackbar(`Item not deleted. Try again`, { variant: "error" });
+          enqueueSnackbar(
+            `${error?.message || "Check your internet connection"}`,
+            { variant: "error" }
+          );
         }
       })
       .catch((error) => {
-        console.log("ErR: ", error);
+        enqueueSnackbar(
+          `${error?.message || "Check your internet connection"}`,
+          { variant: "error" }
+        );
+        // console.log("ErR: ", error);
       });
   };
 
@@ -119,7 +126,13 @@ const CategoryItem = (props) => {
         title="Update Category"
         handleClose={() => setOpen(false)}
         bodyComponent={
-          <EditCategoryForm setOpen={setOpen} img={image} name={name} id={id} />
+          <EditCategoryForm
+            setOpen={setOpen}
+            img={image}
+            name={name}
+            id={id}
+            color={color}
+          />
         }
       />
       <DeleteDialog
@@ -202,8 +215,9 @@ const Category = () => {
               <Grid item xs={2} sm={4} md={4} key={index}>
                 <CategoryItem
                   id={categoryData[index]?.id}
-                  image={categoryData[index]?.url}
-                  name={categoryData[index].title}
+                  image={categoryData[index]?.image}
+                  name={categoryData[index].name}
+                  color={categoryData[index].color}
                 />
               </Grid>
             ))}

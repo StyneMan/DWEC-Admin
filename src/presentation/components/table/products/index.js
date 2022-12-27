@@ -11,6 +11,8 @@ import {
 import CustomNoRowsOverlay from "../../misc/placeholder/custom_no_data";
 import ActionButton from "./action_button";
 import { useSelector } from "react-redux";
+import Typography from "@mui/material/Typography";
+import getSymbolFromCurrency from "currency-symbol-map";
 
 function CustomToolbar() {
   return (
@@ -28,13 +30,13 @@ export default function ProductsTable() {
     {
       field: "_id",
       headerName: "ID",
-      minWidth: 200,
+      minWidth: 140,
       valueGetter: (params) => `${params?.row?.id}`,
     },
     {
       field: "image",
-      headerName: "Image",
-      minWidth: 75,
+      headerName: "IMAGE",
+      minWidth: 80,
       renderCell: (params) => (
         <img alt="Profile" src={params?.row?.image} width="56%" />
       ),
@@ -42,22 +44,55 @@ export default function ProductsTable() {
     {
       field: "name",
       headerName: "NAME",
-      minWidth: 165,
+      minWidth: 186,
     },
     {
       field: "category",
       headerName: "CATEGORY",
-      minWidth: 175,
+      minWidth: 144,
     },
     {
       field: "price",
-      headerName: "UNIT PRICE",
-      minWidth: 175,
+      headerName: "PRICE",
+      minWidth: 105,
+      renderCell: (params) => (
+        <Typography fontSize={14}>{`${getSymbolFromCurrency("NGN")} ${
+          params?.row?.price
+        }`}</Typography>
+      ),
+    },
+    {
+      field: "discountPrice",
+      headerName: "SALE PRICE",
+      minWidth: 105,
+      renderCell: (params) => (
+        <Typography fontSize={14}>{`${getSymbolFromCurrency("NGN")} ${
+          params?.row?.discountPrice
+        }`}</Typography>
+      ),
+    },
+    {
+      field: "discountType",
+      headerName: "DISCOUNT TYPE",
+      minWidth: 135,
+      renderCell: (params) => (
+        <Typography fontSize={14}>{`${params?.row?.discountType}`}</Typography>
+      ),
+    },
+    {
+      field: "discountPercent",
+      headerName: "% DISCOUNT",
+      minWidth: 110,
+      renderCell: (params) => (
+        <Typography fontSize={14}>{`-${
+          params?.row?.discountPercent ?? "0"
+        }%`}</Typography>
+      ),
     },
     {
       field: "quantity",
       headerName: "STOCK",
-      minWidth: 100,
+      minWidth: 80,
     },
     {
       field: "id",
@@ -72,7 +107,7 @@ export default function ProductsTable() {
   const { productsData } = useSelector((state) => state.products);
 
   return (
-    <div style={{ height: 512, width: "100%" }}>
+    <div style={{ height: 565, width: "100%" }}>
       <DataGrid
         rows={productsData}
         columns={columns}

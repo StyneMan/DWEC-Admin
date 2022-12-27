@@ -105,7 +105,6 @@ const EditDeliveryAgency = () => {
 
   const uploadNew = (e) => {
     setIsUploading(true);
-    const timeNow = new Date();
 
     let storageRef = ref(storage, "delivery-agency/" + id);
     let uploadTask = uploadBytesResumable(storageRef, file);

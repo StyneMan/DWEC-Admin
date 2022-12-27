@@ -106,6 +106,7 @@ import DeliveryAgentPreview from "../../components/table/delivery-agencies/agent
 import EditAgentForm from "../../forms/delivery/edit_agent";
 import EditSupplierForm from "../../forms/stock/edit_supplier";
 import EditStockForm from "../../forms/stock/edit_stock";
+import EditBankInfo from "../../forms/bank/edit_bank";
 
 const drawerWidth = 270;
 const useStyles = makeStyles((theme) => ({
@@ -691,6 +692,9 @@ function Dashboard(props) {
                   </Route>
                   <Route path="/dashboard/dwec/cms/bank" exact={true}>
                     <Bank />
+                  </Route>
+                  <Route path="/dashboard/dwec/cms/bank/update">
+                    <EditBankInfo />
                   </Route>
                   <Route path="/dashboard/dwec/cms/blog" exact={true}>
                     <Blog />

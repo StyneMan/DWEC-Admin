@@ -62,6 +62,7 @@ const CategoryForm = (props) => {
   const [formValues, setFormValues] = React.useState({
     title: "",
     image: "",
+    color: "",
   });
   const [file, setFile] = React.useState(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -121,6 +122,7 @@ const CategoryForm = (props) => {
             id: timeNow.getTime().toString(),
             name: formValues.title,
             image: downloadURL,
+            color: formValues.color,
           })
             .then((res) => {
               setOpen(false);
@@ -165,6 +167,22 @@ const CategoryForm = (props) => {
           validators={["required"]}
           errorMessages={["Category name is required"]}
         />
+        <br />
+        <TextValidator
+          id="color"
+          label="Color code"
+          size="small"
+          variant="outlined"
+          value={formValues.color}
+          onChange={handleChange}
+          // onBlur={handleBlur}
+          placeholder="e.g #FFFFFF"
+          name="color"
+          fullWidth
+          validators={["required"]}
+          errorMessages={["Hex color code is required"]}
+        />
+
         <br />
         <TextValidator
           id="image"

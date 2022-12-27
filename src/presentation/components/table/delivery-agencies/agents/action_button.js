@@ -55,38 +55,7 @@ const ActionButton = ({ selected, agencyId }) => {
     setOpenDelete(true);
   };
 
-  const performDelete = async () => {
-    // const fileRef = ref(storage, "delivery-agency/" + selected?.row?.id);
-    // deleteObject(fileRef)
-    //   .then(async () => {
-    //     // File deleted now delete from firestore,
-    //     try {
-    //       await deleteDoc(doc(db, "delivery-agency", "" + selected?.row?.id));
-    //       setOpenDelete(false);
-    //       enqueueSnackbar(`Item deleted successfully`, {
-    //         variant: "success",
-    //       });
-    //     } catch (error) {
-    //       setOpenDelete(false);
-    //       enqueueSnackbar(
-    //         `${
-    //           error?.message || "Not deleted. Check your network connection!"
-    //         } `,
-    //         {
-    //           variant: "error",
-    //         }
-    //       );
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     enqueueSnackbar(
-    //       `${error?.message || "Check your internet connection"}`,
-    //       {
-    //         variant: "error",
-    //       }
-    //     );
-    //   });
-  };
+  const performDelete = async () => {};
 
   const renderDeleteConfirm = (
     <div className={classes.awardRoot}>

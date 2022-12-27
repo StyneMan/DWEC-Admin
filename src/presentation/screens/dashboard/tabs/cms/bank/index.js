@@ -13,7 +13,6 @@ import {
 import image from "../../../../../../assets/images/bank.png";
 import Grid from "@mui/material/Grid";
 import { useHistory } from "react-router-dom";
-import CustomDialog from "../../../../../components/dashboard/dialogs/custom-dialog";
 import { useSelector } from "react-redux";
 import { Box } from "@mui/system";
 import { Divider } from "@mui/material";
@@ -48,27 +47,11 @@ const useStyles = makeStyles((theme) => ({
 const Bank = () => {
   const classes = useStyles();
   const history = useHistory();
-  const [open, setOpen] = React.useState(false);
 
   const { bankData } = useSelector((state) => state.cms);
 
   return (
     <div>
-      <CustomDialog
-        title="Update Bank Account"
-        open={open}
-        handleClose={() => setOpen(false)}
-        // bodyComponent={
-        //   <UpdateContactUsForm
-        //     setOpen={setOpen}
-        //     phone={bankData?.phone}
-        //     email={bankData?.email}
-        //     website={bankData?.website}
-        //     facebook={bankData?.facebook}
-        //     instagram={bankData?.instagram}
-        //   />
-        // }
-      />
       <div className={classes.row}>
         <Typography
           textTransform="uppercase"
