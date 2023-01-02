@@ -148,7 +148,7 @@ const EditProductForm = () => {
     category: category,
     quantity: quantity,
     discountType: item?.discountType ?? "None",
-    discountPrice: item?.discountPrice ?? 0,
+    discountPrice: item?.discountPrice ?? amnt,
     discountPercent: item?.discountPercent ?? "0",
   });
   const [file, setFile] = React.useState(null);
