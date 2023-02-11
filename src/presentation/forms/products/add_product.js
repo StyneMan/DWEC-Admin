@@ -143,6 +143,7 @@ const AddProductForm = () => {
   const [formValues, setFormValues] = React.useState({
     name: "",
     category: "",
+    subcategory: "",
     quantity: 0,
     discountType: "None",
     discountPrice: 0,
@@ -157,7 +158,7 @@ const AddProductForm = () => {
   const [description, setDescription] = React.useState(null);
   const [enableField, setEnableField] = React.useState(true);
   const { enqueueSnackbar } = useSnackbar();
-
+  const [selectedCategory, setSelectedCategory] = React.useState();
   const { categoryData } = useSelector((state) => state.category);
 
   const handleChange = (e) => {
@@ -187,11 +188,15 @@ const AddProductForm = () => {
       let quo = value / 100;
       let divis = price * quo;
       let result = price - divis;
-      console.log("Dis Pr::", result);
+      // console.log("Dis Pr::", result);
       setFormValues((prevData) => ({
         ...prevData,
         discountPrice: result,
       }));
+    } else if (name === "category") {
+      let filter = categoryData?.filter((elem) => elem?.name === value);
+      setSelectedCategory(filter);
+      setFormValues((prevData) => ({ ...prevData, [name]: value }));
     } else {
       if (name === "discountType") {
         if (value === "Fixed price") {
@@ -249,6 +254,7 @@ const AddProductForm = () => {
             name: formValues.name,
             image: downloadURL,
             category: formValues.category,
+            subcategory: formValues.subcategory,
             description: description,
             price: parseInt(`${price}`),
             quantity: formValues.quantity,
@@ -356,7 +362,7 @@ const AddProductForm = () => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Grid item xs={12} sm={6} md={6}>
+          <Grid item xs={12} sm={4} md={4}>
             <TextValidator
               id="name"
               label="Name"
@@ -376,7 +382,7 @@ const AddProductForm = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6}>
+          <Grid item xs={12} sm={4} md={4}>
             <SelectValidator
               margin="normal"
               value={formValues.category}
@@ -393,6 +399,27 @@ const AddProductForm = () => {
                 categoryData?.map((item, index) => (
                   <MenuItem key={index} value={item?.name}>
                     {item?.name}
+                  </MenuItem>
+                ))}
+            </SelectValidator>
+          </Grid>
+
+          <Grid item xs={12} sm={4} md={4}>
+            <SelectValidator
+              margin="normal"
+              value={formValues.subcategory}
+              onChange={handleChange}
+              label="Select Product Subcategory"
+              name="subcategory"
+              fullWidth
+              variant="outlined"
+              size="small"
+            >
+              {categoryData &&
+                selectedCategory &&
+                selectedCategory[0]?.subcategories?.map((item, index) => (
+                  <MenuItem key={index} value={item}>
+                    {item}
                   </MenuItem>
                 ))}
             </SelectValidator>

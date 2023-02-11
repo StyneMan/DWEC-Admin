@@ -5,27 +5,19 @@ import { Divider, List, ListItem, Typography } from "@mui/material";
 import {
   Add,
   Call,
-  DeleteOutlined,
+  CancelOutlined,
+  DateRange,
   EditOutlined,
   LocationOn,
   Pages,
   Person,
   Public,
-  ToggleOffOutlined,
   ToggleOnOutlined,
 } from "@mui/icons-material";
 import DeleteDialog from "../../../../../components/dashboard/dialogs/custom-dialog";
 import StatusDialog from "../../../../../components/dashboard/dialogs/custom-dialog";
 import IconButton from "@mui/material/IconButton";
-import {
-  db,
-  doc,
-  ref,
-  deleteObject,
-  storage,
-  deleteDoc,
-  updateDoc,
-} from "../../../../../../data/firebase";
+import { db, doc, updateDoc } from "../../../../../../data/firebase";
 import { useSnackbar } from "notistack";
 import CloudOffIcon from "@mui/icons-material/CloudOff";
 import { useHistory } from "react-router-dom";
@@ -104,27 +96,22 @@ const AdsItem = (props) => {
     }
   }, [item?.status]);
 
-  const deleteAd = () => {
+  const deleteAd = async () => {
     setOpenDelete(false);
-    const fileRef = ref(storage, "ads/" + item?.id);
-
-    deleteObject(fileRef)
-      .then(async () => {
-        try {
-          await deleteDoc(doc(db, "ads", "" + item?.id));
-          enqueueSnackbar(`Item deleted successfully`, {
-            variant: "success",
-          });
-        } catch (error) {
-          // console.log("ERR: Del: ", error);
-          enqueueSnackbar(`Item not deleted. Try again`, {
-            variant: "error",
-          });
-        }
-      })
-      .catch((error) => {
-        console.log("ErR: ", error);
+    // const fileRef = ref(storage, "ads/" + item?.id);
+    const mRef = doc(db, "ads", `${item?.idd}`);
+    try {
+      await updateDoc(mRef, {
+        status: "Cancelled",
       });
+      enqueueSnackbar(`Advert cancelled successfully`, {
+        variant: "success",
+      });
+    } catch (error) {
+      enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
+        variant: "error",
+      });
+    }
   };
 
   const handleStatus = async () => {
@@ -153,7 +140,7 @@ const AdsItem = (props) => {
   const deleteBody = (
     <div>
       <Typography variant="body2" gutterBottom>
-        {`Are you sure you want to delete this advert?`}
+        {`Are you sure you want to cancel this advert?`}
       </Typography>
       <br />
       <div className={classes.subRow}>
@@ -163,7 +150,7 @@ const AdsItem = (props) => {
           style={{ marginRight: 4 }}
           onClick={() => setOpenDelete(false)}
         >
-          Cancel
+          No, I don't
         </Button>
 
         <Button
@@ -172,7 +159,7 @@ const AdsItem = (props) => {
           color="error"
           onClick={deleteAd}
         >
-          Delete
+          Yes, proceed
         </Button>
       </div>
     </div>
@@ -210,7 +197,7 @@ const AdsItem = (props) => {
     <>
       <DeleteDialog
         open={openDelete}
-        title="Delete Ad"
+        title="cancel Ad"
         handleClose={() => setOpenDelete(false)}
         bodyComponent={deleteBody}
       />
@@ -301,14 +288,38 @@ const AdsItem = (props) => {
             justifyContent={"start"}
             alignItems="center"
           >
+            <DateRange />
+            <Typography gutterBottom paddingX={2}>
+              {`Starts On ${item?.starts}`}
+            </Typography>
+          </Box>
+
+          <Box
+            display={"flex"}
+            flexDirection="row"
+            justifyContent={"start"}
+            alignItems="center"
+          >
+            <DateRange />
+            <Typography gutterBottom paddingX={2}>
+              {`Ends On ${item?.ends}`}
+            </Typography>
+          </Box>
+
+          <Box
+            display={"flex"}
+            flexDirection="row"
+            justifyContent={"start"}
+            alignItems="center"
+          >
             <ToggleOnOutlined />
             <Typography
               gutterBottom
               paddingX={2}
               color={
-                item?.status === "active"
+                item?.status === "Active"
                   ? "orangered"
-                  : item?.status === "completed"
+                  : item?.status === "Completed"
                   ? "green"
                   : "black"
               }
@@ -333,9 +344,17 @@ const AdsItem = (props) => {
           justifyContent={"end"}
           alignItems="end"
         >
-          <IconButton color="error" onClick={() => setOpenDelete(true)}>
-            <Typography>Delete</Typography>
-            <DeleteOutlined />
+          <IconButton
+            disabled={
+              item?.status === "Completed" ||
+              item?.status === "Cancelled" ||
+              item?.status === "Pending"
+            }
+            color="error"
+            onClick={() => setOpenDelete(true)}
+          >
+            <Typography>Cancel</Typography>
+            <CancelOutlined />
           </IconButton>
 
           <IconButton
@@ -356,25 +375,6 @@ const AdsItem = (props) => {
           >
             <Typography>Update</Typography>
             <EditOutlined />
-          </IconButton>
-
-          <IconButton color="primary" onClick={() => setOpenStatus(true)}>
-            {item?.status === "Active" ? (
-              <>
-                <Typography>Stop</Typography>
-                <ToggleOffOutlined />
-              </>
-            ) : item?.status === "Completed" ? (
-              <>
-                <Typography>Run again</Typography>
-                <ToggleOnOutlined />
-              </>
-            ) : (
-              <>
-                <Typography>Start</Typography>
-                <ToggleOnOutlined />
-              </>
-            )}
           </IconButton>
         </Box>
       </Box>

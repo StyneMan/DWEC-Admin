@@ -1,8 +1,9 @@
 import React from "react";
 import { makeStyles } from "@mui/styles";
 import Button from "@mui/material/Button";
-import { Divider, Typography } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Add from "@mui/icons-material/Add";
 import CustomDialog from "../../../../components/dashboard/dialogs/custom-dialog";
 import DeleteDialog from "../../../../components/dashboard/dialogs/custom-dialog";
 import CategoryForm from "../../../../forms/category/new_category_form";
@@ -10,9 +11,11 @@ import EditCategoryForm from "../../../../forms/category/update_category";
 import Card from "@mui/material/Card";
 import CardMedia from "@mui/material/CardMedia";
 import IconButton from "@mui/material/IconButton";
-import { Edit } from "@mui/icons-material";
-import { Delete } from "@mui/icons-material";
-import { Grid } from "@mui/material";
+import Edit from "@mui/icons-material/Edit";
+import Delete from "@mui/icons-material/Delete";
+import Grid from "@mui/material/Grid";
+import List from "@mui/material/List";
+import Box from "@mui/system/Box";
 import {
   db,
   doc,
@@ -20,9 +23,12 @@ import {
   deleteObject,
   storage,
   deleteDoc,
+  updateDoc,
+  arrayRemove,
 } from "../../../../../data/firebase";
 import { useSnackbar } from "notistack";
 import { useSelector } from "react-redux";
+import AddSubCategoryForm from "../../../../forms/category/new_subcategory_form";
 
 const useStyles = makeStyles((theme) => ({
   row: {
@@ -36,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     flexDirection: "column",
     margin: "auto",
-    minHeight: 256,
+    minHeight: 512,
     alignItems: "center",
   },
   cardMedia: {
@@ -58,9 +64,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const CategoryItem = (props) => {
-  const { image, color, name, id } = props;
+  const { image, color, name, id, item } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
+  const [openSub, setOpenSub] = React.useState(false);
   const [openDelete, setOpenDelete] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -89,6 +96,19 @@ const CategoryItem = (props) => {
         );
         // console.log("ErR: ", error);
       });
+  };
+
+  const deleteSubCategory = async (item) => {
+    try {
+      await updateDoc(doc(db, "categories", "" + id), {
+        subcategories: arrayRemove(...[item]),
+      });
+      enqueueSnackbar(`Item deleted successfully`, { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
+        variant: "error",
+      });
+    }
   };
 
   const deleteBody = (
@@ -141,6 +161,12 @@ const CategoryItem = (props) => {
         handleClose={() => setOpenDelete(false)}
         bodyComponent={deleteBody}
       />
+      <CustomDialog
+        open={openSub}
+        title="Add Subcategory"
+        handleClose={() => setOpenSub(false)}
+        bodyComponent={<AddSubCategoryForm setOpen={setOpenSub} id={id} />}
+      />
       <Card elevation={3}>
         <CardMedia image={image} className={classes.cardMedia} />
         <Divider />
@@ -165,6 +191,60 @@ const CategoryItem = (props) => {
             </IconButton>
           </div>
         </div>
+        <Box
+          padding={1}
+          display="flex"
+          flexDirection="column"
+          justifyContent="start"
+        >
+          <div className={classes.row}>
+            <Box display="flex" flexDirection="column" justifyContent="start">
+              <Typography fontSize={16} color="black">
+                Subcategories
+              </Typography>
+              {!item?.subcategories ? (
+                <Typography>No subcategories</Typography>
+              ) : (
+                <List sx={{ width: "100%" }}>
+                  {item?.subcategories?.map((item, index) => (
+                    <Box
+                      key={index}
+                      width="100%"
+                      display="flex"
+                      flexDirection="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography fontSize={11} align="left">
+                        {item}
+                      </Typography>
+                      <Button
+                        startIcon={<Delete />}
+                        size="small"
+                        disableElevation={true}
+                        variant="text"
+                        sx={{ textTransform: "capitalize" }}
+                        onClick={() => deleteSubCategory(item)}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  ))}
+                </List>
+              )}
+            </Box>
+            <Button
+              startIcon={<Add />}
+              size="small"
+              disableElevation={true}
+              variant="text"
+              sx={{ textTransform: "capitalize" }}
+              onClick={() => setOpenSub(true)}
+            >
+              Add
+            </Button>
+          </div>
+        </Box>
       </Card>
     </>
   );
@@ -214,6 +294,7 @@ const Category = () => {
             {categoryData?.map((_, index) => (
               <Grid item xs={2} sm={4} md={4} key={index}>
                 <CategoryItem
+                  item={categoryData[index]}
                   id={categoryData[index]?.id}
                   image={categoryData[index]?.image}
                   name={categoryData[index].name}

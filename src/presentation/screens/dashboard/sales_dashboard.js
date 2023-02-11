@@ -238,7 +238,8 @@ const Receipt = (props) => {
   const dispatch = useDispatch();
   const [openProceed, setOpenProceed] = React.useState(false);
   const [openShipping, setOpenShipping] = React.useState(false);
-  let { totalItems, userData, triggerPOS, initValue, tax } = props;
+  // let [subTotal, setSubTotal] = React.useState(0);
+  let { totalItems, userData, triggerPOS, initValue, tax, sales } = props;
   const { enqueueSnackbar } = useSnackbar();
   const { salesDeliveryData } = useSelector((state) => state.delivery);
 
@@ -246,18 +247,32 @@ const Receipt = (props) => {
   const componentRef = useRef();
 
   React.useEffect(() => {
-    userData?.sales?.forEach((elem) => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      dispatch(setInitValue((initValue += elem?.cost)));
-    });
-  }, []);
+    if (sales) {
+      dispatch(setInitValue(0));
+      setTimeout(() => {
+        sales?.forEach((elem) => {
+          // setSubTotal((subTotal += elem?.cost));
+          dispatch(setInitValue((initValue += elem?.cost)));
+          // dispatch(setInitValue(subTotal));
+        });
+      }, 2000);
+    }
+  }, [sales]);
+
+  React.useEffect(() => {
+    console.log("DATALY", sales);
+  }, [sales]);
 
   React.useEffect(() => {
     if (triggerPOS) {
-      userData?.sales?.forEach((elem) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        dispatch(setInitValue((initValue += elem?.cost)));
-      });
+      dispatch(setInitValue(0));
+      setTimeout(() => {
+        userData?.sales?.forEach((elem) => {
+          // setSubTotal((subTotal += elem?.cost));
+          dispatch(setInitValue((initValue += elem?.cost)));
+          // dispatch(setInitValue(subTotal));
+        });
+      }, 2000);
     }
   }, [triggerPOS]);
 
@@ -727,7 +742,7 @@ const SalesDashboard = () => {
 
   return (
     <Container disableGutters>
-      <Box width="100%" height="96vh" paddingY={2}>
+      <Box width="100%" height="99vh" paddingY={2}>
         <Grid container spacing={4}>
           <Grid item xs={12} sm={12} md={4}>
             <Card elevation={4}>
@@ -751,7 +766,7 @@ const SalesDashboard = () => {
                 <div
                   style={{
                     width: "100%",
-                    height: 375,
+                    height: 400,
                     overflow: "auto",
                   }}
                 >
@@ -790,7 +805,7 @@ const SalesDashboard = () => {
                 <div
                   style={{
                     width: "100%",
-                    height: 500,
+                    height: 525,
                     overflow: "auto",
                   }}
                 >
@@ -813,7 +828,7 @@ const SalesDashboard = () => {
                 <div
                   style={{
                     width: "100%",
-                    height: 500,
+                    height: 525,
                     overflow: "auto",
                   }}
                 >
@@ -822,6 +837,7 @@ const SalesDashboard = () => {
                     userData={userData}
                     initValue={initValue}
                     triggerPOS={triggerPOS}
+                    sales={userData?.sales}
                     tax={tax}
                   />
                 </div>

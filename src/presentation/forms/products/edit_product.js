@@ -146,6 +146,7 @@ const EditProductForm = () => {
     name: name,
     image: "",
     category: category,
+    subcategory: item?.subcategory,
     quantity: quantity,
     discountType: item?.discountType ?? "None",
     discountPrice: item?.discountPrice ?? amnt,
@@ -159,6 +160,7 @@ const EditProductForm = () => {
   const [price, setPrice] = React.useState(amnt);
   const [enableField, setEnableField] = React.useState(true);
   const [description, setDescription] = React.useState(desc);
+  const [selectedCategory, setSelectedCategory] = React.useState();
   const { enqueueSnackbar } = useSnackbar();
 
   const { categoryData } = useSelector((state) => state.category);
@@ -190,11 +192,15 @@ const EditProductForm = () => {
       let quo = value / 100;
       let divis = price * quo;
       let result = price - divis;
-      console.log("Dis Pr::", result);
+      // console.log("Dis Pr::", result);
       setFormValues((prevData) => ({
         ...prevData,
         discountPrice: result,
       }));
+    } else if (name === "category") {
+      let filter = categoryData?.filter((elem) => elem?.name === value);
+      setSelectedCategory(filter);
+      setFormValues((prevData) => ({ ...prevData, [name]: value }));
     } else {
       if (name === "discountType") {
         if (value === "Fixed price") {
@@ -248,6 +254,7 @@ const EditProductForm = () => {
               description: description,
               price: parseInt(`${price}`),
               quantity: formValues.quantity,
+              subcategory: formValues.subcategory,
               discountPercent: formValues.discountPercent,
               discountPrice: parseInt(`${formValues.discountPrice}`),
               discountType: formValues.discountType,
@@ -278,6 +285,7 @@ const EditProductForm = () => {
         await updateDoc(mRef, {
           name: formValues.name,
           category: formValues.category,
+          subcategory: formValues.subcategory,
           description: description,
           price: parseInt(`${price}`),
           quantity: formValues.quantity,
@@ -386,7 +394,7 @@ const EditProductForm = () => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Grid item xs={12} sm={6} md={6}>
+          <Grid item xs={12} sm={4} md={4}>
             <TextValidator
               id="name"
               label="Name"
@@ -402,7 +410,7 @@ const EditProductForm = () => {
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={6}>
+          <Grid item xs={12} sm={4} md={4}>
             <SelectValidator
               margin="normal"
               value={formValues.category}
@@ -419,6 +427,29 @@ const EditProductForm = () => {
                 categoryData?.map((item, index) => (
                   <MenuItem key={index} value={item?.name}>
                     {item?.name}
+                  </MenuItem>
+                ))}
+            </SelectValidator>
+          </Grid>
+
+          <Grid item xs={12} sm={4} md={4}>
+            <SelectValidator
+              margin="normal"
+              value={formValues.subcategory}
+              onChange={handleChange}
+              label="Select Product Subcategory"
+              name="subcategory"
+              fullWidth
+              variant="outlined"
+              size="small"
+              validators={["required"]}
+              errorMessages={["Product subcategory is required"]}
+            >
+              {categoryData &&
+                selectedCategory &&
+                selectedCategory[0]?.subcategories?.map((item, index) => (
+                  <MenuItem key={index} value={item}>
+                    {item}
                   </MenuItem>
                 ))}
             </SelectValidator>

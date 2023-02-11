@@ -18,35 +18,33 @@ const onClickDismiss = (key) => () => {
 };
 
 ReactDOM.render(
-  <React.StrictMode>
-    <ThemeProvider theme={theme}>
-      <Provider store={Store}>
-        <SnackbarProvider
-          ref={notistackRef}
-          action={(key) => (
-            <Button
-              onClick={onClickDismiss(key)}
-              style={{
-                textTransform: "none",
-                color: "white",
-                fontFamily: "roboto",
-              }}
-            >
-              Dismiss
-            </Button>
-          )}
-          maxSnack={2}
-          anchorOrigin={{
-            vertical: "top",
-            horizontal: "center",
-          }}
-          autoHideDuration={5000}
-        >
-          <App />
-        </SnackbarProvider>
-      </Provider>
-    </ThemeProvider>
-  </React.StrictMode>,
+  <ThemeProvider theme={theme}>
+    <Provider store={Store}>
+      <SnackbarProvider
+        ref={notistackRef}
+        action={(key) => (
+          <Button
+            onClick={onClickDismiss(key)}
+            style={{
+              textTransform: "none",
+              color: "white",
+              fontFamily: "roboto",
+            }}
+          >
+            Dismiss
+          </Button>
+        )}
+        maxSnack={2}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        autoHideDuration={5000}
+      >
+        <App />
+      </SnackbarProvider>
+    </Provider>
+  </ThemeProvider>,
   document.getElementById("root")
 );
 
