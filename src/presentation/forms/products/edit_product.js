@@ -201,6 +201,25 @@ const EditProductForm = () => {
       let filter = categoryData?.filter((elem) => elem?.name === value);
       setSelectedCategory(filter);
       setFormValues((prevData) => ({ ...prevData, [name]: value }));
+    } else if (name === "pice") {
+      if (formValues.discountType !== "None") {
+        setEnableField(false);
+        //   setFormValues((prevData) => ({
+        //   ...prevData,
+        //   discountPercent: Math.max(0, parseInt(e.target.value))
+        //     .toString()
+        //     .slice(0, 2),
+        // }));
+        //Now calculate discount here
+        let quo = value / 100;
+        let divis = price * quo;
+        let result = price - divis;
+        // console.log("Dis Pr::", result);
+        setFormValues((prevData) => ({
+          ...prevData,
+          discountPrice: result,
+        }));
+      }
     } else {
       if (name === "discountType") {
         if (value === "Fixed price") {
@@ -254,7 +273,7 @@ const EditProductForm = () => {
               description: description,
               price: parseInt(`${price}`),
               quantity: formValues.quantity,
-              subcategory: formValues.subcategory,
+              subcategory: formValues.subcategory ?? "",
               discountPercent: formValues.discountPercent,
               discountPrice: parseInt(`${formValues.discountPrice}`),
               discountType: formValues.discountType,
@@ -285,7 +304,7 @@ const EditProductForm = () => {
         await updateDoc(mRef, {
           name: formValues.name,
           category: formValues.category,
-          subcategory: formValues.subcategory,
+          subcategory: formValues.subcategory ?? "",
           description: description,
           price: parseInt(`${price}`),
           quantity: formValues.quantity,
@@ -301,9 +320,12 @@ const EditProductForm = () => {
         history.goBack();
       } catch (error) {
         setIsLoading(false);
-        enqueueSnackbar(`Error updating product`, {
-          variant: "error",
-        });
+        enqueueSnackbar(
+          `${error?.message || "Check your internet connection"}`,
+          {
+            variant: "error",
+          }
+        );
       }
     } else {
       const fileRef = ref(storage, "products/" + id);
@@ -318,6 +340,12 @@ const EditProductForm = () => {
         .catch((error) => {
           setIsLoading(false);
           console.log("ErR: ", error);
+          enqueueSnackbar(
+            `${error?.message || "Check your internet connection"}`,
+            {
+              variant: "error",
+            }
+          );
         });
     }
   };
@@ -394,7 +422,12 @@ const EditProductForm = () => {
           alignItems="center"
           justifyContent="space-between"
         >
-          <Grid item xs={12} sm={4} md={4}>
+          <Grid
+            item
+            xs={12}
+            sm={formValues.subcategory ? 4 : 6}
+            md={formValues.subcategory ? 4 : 6}
+          >
             <TextValidator
               id="name"
               label="Name"
@@ -409,8 +442,12 @@ const EditProductForm = () => {
               errorMessages={["Product name is required"]}
             />
           </Grid>
-
-          <Grid item xs={12} sm={4} md={4}>
+          <Grid
+            item
+            xs={12}
+            sm={formValues.subcategory ? 4 : 6}
+            md={formValues.subcategory ? 4 : 6}
+          >
             <SelectValidator
               margin="normal"
               value={formValues.category}
@@ -431,36 +468,48 @@ const EditProductForm = () => {
                 ))}
             </SelectValidator>
           </Grid>
-
-          <Grid item xs={12} sm={4} md={4}>
-            <SelectValidator
-              margin="normal"
-              value={formValues.subcategory}
-              onChange={handleChange}
-              label="Select Product Subcategory"
-              name="subcategory"
-              fullWidth
-              variant="outlined"
-              size="small"
-              validators={["required"]}
-              errorMessages={["Product subcategory is required"]}
-            >
-              {categoryData &&
-                selectedCategory &&
-                selectedCategory[0]?.subcategories?.map((item, index) => (
-                  <MenuItem key={index} value={item}>
-                    {item}
-                  </MenuItem>
-                ))}
-            </SelectValidator>
-          </Grid>
+          <>
+            {formValues.subcategory && (
+              <Grid item xs={12} sm={4} md={4}>
+                <SelectValidator
+                  margin="normal"
+                  value={formValues.subcategory}
+                  onChange={handleChange}
+                  label="Select Product Subcategory"
+                  name="subcategory"
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  validators={["required"]}
+                  errorMessages={["Product subcategory is required"]}
+                >
+                  {categoryData &&
+                    selectedCategory &&
+                    selectedCategory[0]?.subcategories?.map((item, index) => (
+                      <MenuItem key={index} value={item}>
+                        {item}
+                      </MenuItem>
+                    ))}
+                </SelectValidator>
+              </Grid>
+            )}
+          </>
         </Grid>
 
         <Grid container spacing={1} padding={1}>
           <Grid item xs={12} sm={6} md={4}>
             <NumberFormat
               customInput={TextField}
-              onValueChange={(values) => setPrice(values.value)}
+              onValueChange={(values) => {
+                setPrice(values.value);
+                if (formValues.discountType === "None") {
+                  setFormValues((prevData) => ({
+                    ...prevData,
+                    discountPrice: values.value,
+                    discountPercent: "",
+                  }));
+                }
+              }}
               value={price}
               thousandSeparator={true}
               prefix={"₦"}
