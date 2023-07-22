@@ -285,7 +285,7 @@ const EditProductForm = () => {
             history.goBack();
           } catch (error) {
             setIsLoading(false);
-            enqueueSnackbar(`Error updating product`, {
+            enqueueSnackbar(`${error?.message || "Check your internet connection"}`, {
               variant: "error",
             });
           }
@@ -328,25 +328,25 @@ const EditProductForm = () => {
         );
       }
     } else {
-      const fileRef = ref(storage, "products/" + id);
+      // const fileRef = ref(storage, "products/" + id);
 
-      deleteObject(fileRef)
-        .then(() => {
+      // deleteObject(fileRef)
+      //   .then(() => {
           // File deleted now upload new file,
           //get download url and save to firestore
-          setIsLoading(false);
+          // setIsLoading(false);
           uploadNew();
-        })
-        .catch((error) => {
-          setIsLoading(false);
-          console.log("ErR: ", error);
-          enqueueSnackbar(
-            `${error?.message || "Check your internet connection"}`,
-            {
-              variant: "error",
-            }
-          );
-        });
+        // })
+        // .catch((error) => {
+        //   setIsLoading(false);
+        //   console.log("ErR: ", error);
+        //   enqueueSnackbar(
+        //     `${error?.message || "Check your internet connection"}`,
+        //     {
+        //       variant: "error",
+        //     }
+        //   );
+        // });
     }
   };
 
