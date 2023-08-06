@@ -87,7 +87,7 @@ export default function UsersTable() {
     },
   ];
 
-  const [usersList, setUsersList] = React.useState(null);
+  const [usersList, setUsersList] = React.useState([]);
 
   React.useEffect(() => {
     const usersRef = collection(db, "users");

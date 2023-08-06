@@ -84,15 +84,15 @@ export default function AdminsTable() {
     },
   ];
 
-  const [usersList, setUsersList] = React.useState(null);
+  const [usersList, setUsersList] = React.useState([]);
 
   React.useEffect(() => {
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("userType", "!=", "public"));
     onSnapshot(q, (querySnapshot) => {
       const usrs = [];
-      querySnapshot.forEach((doc) => {
-        usrs.push(doc.data());
+      querySnapshot?.forEach((doc) => {
+        usrs?.push(doc?.data());
       });
       setUsersList(usrs);
     });
